@@ -22,6 +22,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useNavigate } from "react-router-dom";
 
 const features = [
   {
@@ -108,12 +109,10 @@ const testimonials = [
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    toast({
-      title: "Welcome to EduManager!",
-      description: "We'll contact you shortly to get you started.",
-    });
+    navigate("/register");
   };
 
   return (

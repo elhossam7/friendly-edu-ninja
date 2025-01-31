@@ -31,7 +31,6 @@ const countries = [
   { value: "uk", label: "United Kingdom" },
   { value: "ca", label: "Canada" },
   { value: "au", label: "Australia" },
-  // Add more countries as needed
 ];
 
 const InstitutionRegistration = () => {
@@ -52,12 +51,18 @@ const InstitutionRegistration = () => {
     try {
       // Here you would typically make an API call to register the institution
       console.log("Form submitted:", data);
+      
+      // Show success toast
       toast({
         title: "Registration successful!",
         description: "Please check your email for verification.",
       });
-      // Navigate to the next step (roles setup)
-      navigate("/setup/roles");
+
+      // Add a small delay to ensure the toast is visible before navigation
+      setTimeout(() => {
+        navigate("/setup/roles");
+      }, 1000);
+      
     } catch (error) {
       toast({
         title: "Registration failed",

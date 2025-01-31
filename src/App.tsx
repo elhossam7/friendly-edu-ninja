@@ -18,6 +18,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<InstitutionRegistration />} />
+          <Route path="/setup/roles" element={<NotFound />} /> {/* Temporarily using NotFound until we implement the roles page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

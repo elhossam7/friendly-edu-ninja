@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const registrationSchema = z.object({
   institutionName: z.string().min(2, "Institution name must be at least 2 characters"),
@@ -35,6 +36,7 @@ const countries = [
 
 const InstitutionRegistration = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -54,6 +56,8 @@ const InstitutionRegistration = () => {
         title: "Registration successful!",
         description: "Please check your email for verification.",
       });
+      // Navigate to the next step (roles setup)
+      navigate("/setup/roles");
     } catch (error) {
       toast({
         title: "Registration failed",

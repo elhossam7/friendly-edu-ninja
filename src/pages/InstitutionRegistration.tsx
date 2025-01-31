@@ -10,6 +10,7 @@ import { z } from "zod";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
 const registrationSchema = z.object({
   institutionName: z.string().min(2, "Institution name must be at least 2 characters"),
@@ -36,33 +37,67 @@ const countries = [
 const InstitutionRegistration = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [isSaving, setIsSaving] = React.useState(false);
+
   const form = useForm<RegistrationForm>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
-      institutionName: "",
-      adminName: "",
-      email: "",
+      institutionName: localStorage.getItem('draft_institutionName') || "",
+      adminName: localStorage.getItem('draft_adminName') || "",
+      email: localStorage.getItem('draft_email') || "",
       password: "",
-      country: "",
+      country: localStorage.getItem('draft_country') || "",
     },
   });
+
+  // Auto-save form data
+  React.useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (value.institutionName) localStorage.setItem('draft_institutionName', value.institutionName);
+      if (value.adminName) localStorage.setItem('draft_adminName', value.adminName);
+      if (value.email) localStorage.setItem('draft_email', value.email);
+      if (value.country) localStorage.setItem('draft_country', value.country);
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch]);
+
+  const saveAndExit = async () => {
+    setIsSaving(true);
+    try {
+      const formData = form.getValues();
+      // Here you would typically make an API call to save the draft
+
+      toast({
+        title: "Progress saved!",
+        description: "You can continue registration later.",
+      });
+
+      navigate("/");
+    } catch (error) {
+      toast({
+        title: "Error saving progress",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const onSubmit = async (data: RegistrationForm) => {
     try {
       // Here you would typically make an API call to register the institution
       console.log("Form submitted:", data);
-      
-      // Show success toast
+
+      // Show success toast with more informative message
       toast({
         title: "Registration successful!",
-        description: "Please check your email for verification.",
+        description: "Your institution details have been saved. The next steps are coming soon!",
       });
 
-      // Add a small delay to ensure the toast is visible before navigation
       setTimeout(() => {
         navigate("/setup/roles");
       }, 1000);
-      
     } catch (error) {
       toast({
         title: "Registration failed",
@@ -90,7 +125,17 @@ const InstitutionRegistration = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Institution Details</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Institution Details</CardTitle>
+              <Button
+                variant="outline"
+                onClick={saveAndExit}
+                disabled={isSaving}
+                aria-label="Save progress and exit"
+              >
+                {isSaving ? "Saving..." : "Save & Exit"}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -100,11 +145,16 @@ const InstitutionRegistration = () => {
                   name="institutionName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Institution Name</FormLabel>
+                      <FormLabel htmlFor="institutionName">Institution Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your institution name" {...field} />
+                        <Input
+                          id="institutionName"
+                          placeholder="Enter your institution name"
+                          {...field}
+                          aria-required="true"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage role="alert" />
                     </FormItem>
                   )}
                 />
@@ -114,11 +164,16 @@ const InstitutionRegistration = () => {
                   name="adminName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Admin Name</FormLabel>
+                      <FormLabel htmlFor="adminName">Admin Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter admin name" {...field} />
+                        <Input
+                          id="adminName"
+                          placeholder="Enter admin name"
+                          {...field}
+                          aria-required="true"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage role="alert" />
                     </FormItem>
                   )}
                 />
@@ -128,11 +183,17 @@ const InstitutionRegistration = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel htmlFor="email">Email Address</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="Enter your email" {...field} />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="Enter your email"
+                          {...field}
+                          aria-required="true"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage role="alert" />
                     </FormItem>
                   )}
                 />
@@ -142,11 +203,17 @@ const InstitutionRegistration = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Create a password" {...field} />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Create a password"
+                          {...field}
+                          aria-required="true"
+                        />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage role="alert" />
                     </FormItem>
                   )}
                 />
@@ -156,7 +223,7 @@ const InstitutionRegistration = () => {
                   name="country"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Country/Region (Optional)</FormLabel>
+                      <FormLabel htmlFor="country">Country/Region (Optional)</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -171,15 +238,22 @@ const InstitutionRegistration = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormMessage />
+                      <FormMessage role="alert" />
                     </FormItem>
                   )}
                 />
 
-                <Button type="submit" className="w-full">
-                  <CheckCircle2 className="mr-2" />
-                  Complete Registration
-                </Button>
+                <div className="flex space-x-4">
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={isSaving}
+                    aria-label="Complete registration"
+                  >
+                    <CheckCircle2 className="mr-2" />
+                    Complete Registration
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>

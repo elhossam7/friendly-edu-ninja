@@ -1,3 +1,5 @@
+import RolesSetup from './pages/RolesSetup';
+import AcademicYearSetup from './pages/AcademicYearSetup';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,7 +20,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<InstitutionRegistration />} />
-          <Route path="/setup/roles" element={<NotFound />} /> {/* Temporarily using NotFound until we implement the roles page */}
+          <Route path="/setup/roles" element={<RolesSetup />} />
+          <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -6,7 +6,6 @@ import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
-import { SocialProofSection } from "@/components/landing/SocialProofSection";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
@@ -19,7 +18,6 @@ const Index = () => {
       <SmoothScroll />
       <Navbar />
       <HeroSection />
-      <SocialProofSection />
       <StatsSection />
       <FeaturesSection />
       <DashboardSection />

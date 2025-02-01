@@ -7,11 +7,11 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { Footer } from "@/components/landing/Footer";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
 import { SocialProofSection } from "@/components/landing/SocialProofSection";
-import { SolutionSection } from "@/components/landing/SolutionSection";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
 import { CTVSection } from "@/components/landing/CTVSection";
+import { DashboardSection } from "@/components/landing/DashboardSection";
 
 const Index = () => {
   return (
@@ -22,7 +22,7 @@ const Index = () => {
       <SocialProofSection />
       <StatsSection />
       <FeaturesSection />
-      <SolutionSection />
+      <DashboardSection />
       <BenefitsSection />
       <HowItWorksSection />
       <IntegrationsSection />

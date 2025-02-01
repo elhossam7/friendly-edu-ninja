@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   BookOpen,
   Calendar,
@@ -10,10 +9,12 @@ import {
   Users,
   Clock,
   Zap,
-  CheckCircle2,
   Settings,
   UserPlus,
   BarChart,
+  Menu,
+  X,
+  HelpCircle,
 } from "lucide-react";
 import {
   Carousel,
@@ -22,6 +23,13 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const features = [
@@ -47,68 +55,53 @@ const features = [
   },
 ];
 
-const whyChooseUs = [
-  {
-    title: "Trusted by 100+ Institutions",
-    description: "Join the growing community of satisfied educational institutions",
-    icon: Users,
-  },
-  {
-    title: "24/7 Customer Support",
-    description: "Get help whenever you need it with our round-the-clock support",
-    icon: Clock,
-  },
-  {
-    title: "Seamless Integration",
-    description: "Easily integrate with your existing educational tools and systems",
-    icon: Zap,
-  },
-];
-
-const howItWorks = [
-  {
-    step: 1,
-    title: "Sign Up & Customize",
-    description: "Create your account and customize your dashboard to match your needs",
-    icon: Settings,
-  },
-  {
-    step: 2,
-    title: "Add Your Data",
-    description: "Easily import students, teachers, and courses into the system",
-    icon: UserPlus,
-  },
-  {
-    step: 3,
-    title: "Start Managing",
-    description: "Begin tracking attendance, grades, and fees effortlessly",
-    icon: BarChart,
-  },
+const stats = [
+  { value: "98%", label: "User Satisfaction" },
+  { value: "50%", label: "Time Saved" },
+  { value: "24/7", label: "Support Available" },
 ];
 
 const testimonials = [
   {
     name: "John Doe",
     role: "School Principal",
-    content: "EduManager has transformed how we manage our institution.",
+    content: "EduManager has transformed how we manage our institution. The automated systems have saved us countless hours of administrative work.",
+    rating: 5,
     image: "/placeholder.svg",
   },
   {
     name: "Jane Smith",
     role: "Administrator",
-    content: "The automation features save us countless hours every week.",
+    content: "The automation features save us countless hours every week. The support team is always there when we need them.",
+    rating: 5,
     image: "/placeholder.svg",
   },
   {
     name: "Mike Johnson",
     role: "Department Head",
-    content: "An invaluable tool for modern educational institutions.",
+    content: "An invaluable tool for modern educational institutions. The interface is intuitive and our staff needed minimal training.",
+    rating: 5,
     image: "/placeholder.svg",
   },
 ];
 
+const faqs = [
+  {
+    question: "How long does it take to set up EduManager?",
+    answer: "Setup typically takes less than an hour. Our step-by-step wizard guides you through the entire process, from institution registration to system configuration."
+  },
+  {
+    question: "Is my data secure with EduManager?",
+    answer: "Yes, we use industry-standard encryption and security measures to protect your data. All information is stored in secure, encrypted databases."
+  },
+  {
+    question: "Can I import existing student data?",
+    answer: "Yes, EduManager supports bulk import of student data via CSV files. Our support team can assist you with the data migration process."
+  },
+];
+
 const Index = () => {
-  const { toast } = useToast();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -117,15 +110,48 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <span className="text-xl font-bold text-[#1A1F2C]">EduManager</span>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-600 hover:text-[#9b87f5]">Features</a>
+              <a href="#benefits" className="text-gray-600 hover:text-[#9b87f5]">Benefits</a>
+              <a href="#testimonials" className="text-gray-600 hover:text-[#9b87f5]">Testimonials</a>
+              <Button onClick={handleGetStarted}>Get Started</Button>
+            </div>
+
+            <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-b">
+            <div className="px-4 py-2 space-y-2">
+              <a href="#features" className="block text-gray-600 hover:text-[#9b87f5]">Features</a>
+              <a href="#benefits" className="block text-gray-600 hover:text-[#9b87f5]">Benefits</a>
+              <a href="#testimonials" className="block text-gray-600 hover:text-[#9b87f5]">Testimonials</a>
+              <Button onClick={handleGetStarted} className="w-full">Get Started</Button>
+            </div>
+          </div>
+        )}
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] px-4">
+      <section className="relative pt-20 min-h-[80vh] flex items-center justify-center bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] px-4">
         <div className="max-w-4xl mx-auto text-center text-white space-y-6 animate-fade-in">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-            Empower Education Management with EduManager
+            Transform Your Institution's Management
           </h1>
           <p className="text-xl md:text-2xl opacity-90">
-            Streamline your institution's operations with intuitive tools designed
-            for success
+            Save 50% of administrative time with our all-in-one education management platform
           </p>
           <div className="flex flex-wrap gap-4 justify-center mt-8">
             <Button
@@ -133,37 +159,49 @@ const Index = () => {
               className="bg-[#D6BCFA] text-[#1A1F2C] hover:bg-[#D6BCFA]/90 transform transition-transform hover:scale-105"
               onClick={handleGetStarted}
             >
-              Get Started
+              Start Free Trial
+              <ChevronRight className="ml-2" />
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="text-white border-white hover:bg-white/10 transform transition-transform hover:scale-105"
+              className="text-white border-white hover:bg-white/10"
             >
-              Learn More
-              <ChevronRight className="ml-2" />
+              Watch Demo
             </Button>
           </div>
         </div>
       </section>
 
+      {/* Stats Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-4xl font-bold text-[#9b87f5]">{stat.value}</div>
+                <div className="text-gray-600 mt-2">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="py-20 px-4 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1A1F2C]">
             Key Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <Card
                 key={feature.title}
                 className="transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
               >
-                <CardHeader>
+                <CardContent className="p-6">
                   <feature.icon className="w-12 h-12 text-[#9b87f5] mb-4" />
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
+                  <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
                 </CardContent>
               </Card>
@@ -172,64 +210,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1A1F2C]">
-            Why Choose Us
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {whyChooseUs.map((item, index) => (
-              <div
-                key={item.title}
-                className="flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-md transform transition-all duration-300 hover:-translate-y-2"
-              >
-                <div className="mb-4 p-4 bg-[#9b87f5]/10 rounded-full">
-                  <item.icon className="w-8 h-8 text-[#9b87f5]" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1A1F2C]">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {howItWorks.map((step, index) => (
-              <div
-                key={step.title}
-                className="relative flex flex-col items-center text-center"
-              >
-                <div className="mb-6">
-                  <div className="w-16 h-16 bg-[#9b87f5] rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    {step.step}
-                  </div>
-                </div>
-                <step.icon className="w-12 h-12 text-[#9b87f5] mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-                {index < howItWorks.length - 1 && (
-                  <div className="hidden md:block absolute top-[32px] left-[60%] w-[80%] h-[2px] bg-[#9b87f5]/20">
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
-                      <ChevronRight className="w-6 h-6 text-[#9b87f5]" />
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section id="testimonials" className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1A1F2C]">
             What Our Users Say
@@ -240,6 +222,11 @@ const Index = () => {
                 <CarouselItem key={index}>
                   <Card className="mx-4">
                     <CardContent className="p-6 text-center">
+                      <div className="flex justify-center mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <span key={i} className="text-yellow-400">★</span>
+                        ))}
+                      </div>
                       <img
                         src={testimonial.image}
                         alt={testimonial.name}
@@ -258,6 +245,69 @@ const Index = () => {
           </Carousel>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-gray-50">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#1A1F2C]">
+            Frequently Asked Questions
+          </h2>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-[#9b87f5]" />
+                    {faq.question}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#1A1F2C] text-white py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-xl font-bold mb-4">EduManager</h3>
+              <p className="text-gray-400">Transforming education management for the digital age.</p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#features" className="hover:text-white">Features</a></li>
+                <li><a href="#benefits" className="hover:text-white">Benefits</a></li>
+                <li><a href="#testimonials" className="hover:text-white">Testimonials</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">Help Center</a></li>
+                <li><a href="#" className="hover:text-white">Documentation</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white">Cookie Policy</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400">
+            <p>&copy; {new Date().getFullYear()} EduManager. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

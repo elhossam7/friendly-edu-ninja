@@ -17,8 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
-import { Plus, GripVertical } from "lucide-react";
+import { Plus, GripVertical, AlertCircle, Trash2 } from "lucide-react";
 import { Term, AcademicYear, AcademicYearFormData } from "../types/academic";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import styles from "@/styles/TermsTimeline.module.css";
 
 const academicYearSchema = z.object({
   academicYear: z.object({
@@ -37,19 +40,35 @@ const academicYearSchema = z.object({
       order: z.number(),
     }))
   }).refine((data) => {
-    // Validate that start date is before end date
     if (data.startDate >= data.endDate) {
       return false;
     }
-    // Validate that all terms are within academic year dates
-    return data.terms.every(term => 
+    
+    // Check if terms are within academic year dates
+    const termsValid = data.terms.every(term => 
       term.startDate >= data.startDate && 
       term.endDate <= data.endDate &&
       term.startDate < term.endDate
     );
+    
+    if (!termsValid) return false;
+    
+    // Check for overlapping terms
+    for (let i = 0; i < data.terms.length; i++) {
+      for (let j = i + 1; j < data.terms.length; j++) {
+        if (
+          (data.terms[i].startDate <= data.terms[j].endDate) &&
+          (data.terms[j].startDate <= data.terms[i].endDate)
+        ) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
   }, {
-    message: "Invalid date range. Please check academic year and term dates.",
-    path: ["endDate"],
+    message: "Please check for invalid or overlapping date ranges",
+    path: ["terms"],
   }),
 });
 
@@ -146,6 +165,28 @@ const AcademicYearSetup = () => {
     }
   };
 
+  const removeTerm = (index: number) => {
+    const terms = form.getValues("academicYear.terms");
+    const updatedTerms = terms.filter((_, i) => i !== index)
+      .map((term, i) => ({ ...term, order: i }));
+    form.setValue("academicYear.terms", updatedTerms);
+  };
+
+  // Calculate completion percentage
+  const calculateProgress = () => {
+    const values = form.getValues("academicYear");
+    let progress = 0;
+    
+    if (values.name) progress += 20;
+    if (values.startDate && values.endDate) progress += 20;
+    if (values.terms.length > 0) {
+      const validTerms = values.terms.filter(t => t.name && t.startDate && t.endDate);
+      progress += (validTerms.length / values.terms.length) * 60;
+    }
+    
+    return Math.round(progress);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -157,13 +198,13 @@ const AcademicYearSetup = () => {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Step 3 of 5: Academic Year Configuration</span>
-            <span>60% Complete</span>
+            <span>{calculateProgress()}% Complete</span>
           </div>
-          <div className="h-2 w-full bg-gray-200 rounded-full">
-            <div
-              className="h-2 bg-[#9b87f5] rounded-full progress-bar"
-            />
-          </div>
+          <div className={styles.progressContainer}>
+                      <div
+                        className={`${styles.progressBar} ${styles.progressBarDynamic}`}
+                      />
+                    </div>
         </div>
 
         <Form {...form}>
@@ -183,41 +224,20 @@ const AcademicYearSetup = () => {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid gap-4">
                 <FormField
                   control={form.control}
-                  name="academicYear.startDate"
+                  name="academicYear"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Start Date</FormLabel>
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > form.getValues("academicYear.endDate")
-                        }
-                        className="rounded-md border"
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="academicYear.endDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>End Date</FormLabel>
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < form.getValues("academicYear.startDate")
-                        }
-                        className="rounded-md border"
+                    <FormItem>
+                      <FormLabel>Academic Year Duration</FormLabel>
+                      <DateRangePicker
+                        from={field.value.startDate}
+                        to={field.value.endDate}
+                        onSelect={(range) => {
+                          if (range?.from) form.setValue("academicYear.startDate", range.from);
+                          if (range?.to) form.setValue("academicYear.endDate", range.to);
+                        }}
                       />
                       <FormMessage />
                     </FormItem>
@@ -225,6 +245,31 @@ const AcademicYearSetup = () => {
                 />
               </div>
             </Card>
+
+            {/* Terms Timeline Preview */}
+            {form.watch("academicYear.terms").length > 0 && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-4">Terms Timeline</h3>
+                <div className={styles.termTimelineContainer}>
+                  {form.watch("academicYear.terms").map((term, index) => {
+                    const start = form.getValues("academicYear.startDate");
+                    const end = form.getValues("academicYear.endDate");
+                    const totalDays = end.getTime() - start.getTime();
+                    const termStart = (term.startDate.getTime() - start.getTime()) / totalDays * 100;
+                    const termWidth = (term.endDate.getTime() - term.startDate.getTime()) / totalDays * 100;
+                    
+                    return (
+                      <div
+                        key={term.id}
+                        className={styles.termBlock}
+                      >
+                        {term.name}
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
@@ -251,8 +296,9 @@ const AcademicYearSetup = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              className="group"
                             >
-                              <Card className="p-4">
+                              <Card className="p-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
                                   <div className="mt-2 cursor-move">
                                     <GripVertical className="w-5 h-5 text-gray-400" />
@@ -314,6 +360,15 @@ const AcademicYearSetup = () => {
                                       />
                                     </div>
                                   </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => removeTerm(index)}
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
                                 </div>
                               </Card>
                             </div>
@@ -326,6 +381,16 @@ const AcademicYearSetup = () => {
                 </Droppable>
               </DragDropContext>
             </div>
+
+            {/* Validation Errors */}
+            {form.formState.errors.academicYear?.terms && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {form.formState.errors.academicYear.terms.message}
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="flex justify-end gap-4">
               <Button

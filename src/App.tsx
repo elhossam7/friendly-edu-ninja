@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import InstitutionRegistration from "./pages/InstitutionRegistration";
 import ClassAndSectionSetup from './pages/ClassAndSectionSetup';
+import SubjectSetup from './pages/SubjectSetup';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/setup/roles" element={<RolesSetup />} />
           <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
           <Route path="/setup/class" element={<ClassAndSectionSetup />} />
+          <Route path="/setup/subject" element={<SubjectSetup />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

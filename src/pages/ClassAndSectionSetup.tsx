@@ -88,20 +88,20 @@ const ClassAndSectionSetup = () => {
   const onSubmit = async (data: z.infer<typeof classSchema>) => {
     setIsLoading(true);
     try {
-      // Simulate API call
+      // API call simulation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: "Success",
-        description: "Class and section setup completed successfully"
+        description: "Class and section setup completed successfully",
       });
       
-      navigate("/setup/subjects");
+      navigate("/setup/subject");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save class and section setup",
-        variant: "destructive"
+        description: "Failed to save class setup",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

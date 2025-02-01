@@ -172,19 +172,25 @@ export default function SubjectSetup() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // API call simulation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // TODO: Implement actual backend submission logic
+      console.log("Submitting subjects:", data);
+
+      // Store setup completion in local storage
+      localStorage.setItem('setupCompleted', 'true');
+
+      // Show success toast
       toast({
-        title: "Success",
-        description: "Subject and curriculum setup completed successfully",
+        title: "Setup Complete",
+        description: "Your institution setup is now finished.",
+        variant: "default",
       });
-      
-      navigate("/setup/complete");
+
+      // Navigate to completion page
+      navigate("/setup/completion");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save subject setup",
+        description: "Failed to complete setup. Please try again.",
         variant: "destructive",
       });
     } finally {

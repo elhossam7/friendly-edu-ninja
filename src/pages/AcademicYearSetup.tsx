@@ -25,7 +25,8 @@ import styles from "@/styles/TermsTimeline.module.css";
 
 const academicYearSchema = z.object({
   academicYear: z.object({
-    name: z.string().min(1, "Academic year name is required"),
+    name: z.string().min(1, "Academic year name is required")
+      .regex(/^\d{4}-\d{4}$/, "Academic year must be in format YYYY-YYYY"),
     startDate: z.date({
       required_error: "Start date is required",
     }),
@@ -40,34 +41,38 @@ const academicYearSchema = z.object({
       order: z.number(),
     }))
   }).refine((data) => {
+    // Validate academic year dates
+    const startYear = data.startDate.getFullYear();
+    const endYear = data.endDate.getFullYear();
+    const yearDiff = endYear - startYear;
+    
+    if (yearDiff > 1 || yearDiff < 0) {
+      return false;
+    }
+    
     if (data.startDate >= data.endDate) {
       return false;
     }
     
-    // Check if terms are within academic year dates
-    const termsValid = data.terms.every(term => 
-      term.startDate >= data.startDate && 
-      term.endDate <= data.endDate &&
-      term.startDate < term.endDate
-    );
-    
-    if (!termsValid) return false;
-    
-    // Check for overlapping terms
-    for (let i = 0; i < data.terms.length; i++) {
-      for (let j = i + 1; j < data.terms.length; j++) {
-        if (
-          (data.terms[i].startDate <= data.terms[j].endDate) &&
-          (data.terms[j].startDate <= data.terms[i].endDate)
-        ) {
+    // Check if terms are within academic year dates and properly ordered
+    const termsValid = data.terms.every((term, index) => {
+      const isWithinYear = term.startDate >= data.startDate && term.endDate <= data.endDate;
+      const hasValidDates = term.startDate < term.endDate;
+      
+      // Check if term starts after previous term ends
+      if (index > 0) {
+        const prevTerm = data.terms[index - 1];
+        if (term.startDate <= prevTerm.endDate) {
           return false;
         }
       }
-    }
+      
+      return isWithinYear && hasValidDates;
+    });
     
-    return true;
+    return termsValid;
   }, {
-    message: "Please check for invalid or overlapping date ranges",
+    message: "Invalid academic year setup. Please ensure:\n- Academic year spans 1 year or less\n- Terms are within the academic year\n- Terms don't overlap\n- Terms are in chronological order",
     path: ["terms"],
   }),
 });
@@ -152,7 +157,6 @@ const AcademicYearSetup = () => {
         description: "Moving to Class and Section setup..."
       });
       
-      // Fix: Change the navigation path from "/setup/ClassAndSectionSetup" to "/setup/class"
       navigate("/setup/class"); // This should match the route defined in App.tsx
     } catch (error) {
       toast({
@@ -187,6 +191,73 @@ const AcademicYearSetup = () => {
     return Math.round(progress);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === "ArrowUp" && index > 0) {
+      e.preventDefault();
+      const terms = form.getValues("academicYear.terms");
+      const newTerms = [...terms];
+      [newTerms[index], newTerms[index - 1]] = [newTerms[index - 1], newTerms[index]];
+      form.setValue("academicYear.terms", newTerms.map((term, i) => ({ ...term, order: i })));
+    } else if (e.key === "ArrowDown" && index < form.getValues("academicYear.terms").length - 1) {
+      e.preventDefault();
+      const terms = form.getValues("academicYear.terms");
+      const newTerms = [...terms];
+      [newTerms[index], newTerms[index + 1]] = [newTerms[index + 1], newTerms[index]];
+      form.setValue("academicYear.terms", newTerms.map((term, i) => ({ ...term, order: i })));
+    }
+  };
+
+  const getTermDateValidation = (index: number) => {
+    const term = form.getValues(`academicYear.terms.${index}`);
+    const academicYear = form.getValues("academicYear");
+    
+    if (!term.startDate || !term.endDate) return null;
+    
+    if (term.startDate < academicYear.startDate) {
+      return "Term starts before academic year";
+    }
+    if (term.endDate > academicYear.endDate) {
+      return "Term ends after academic year";
+    }
+    if (term.startDate >= term.endDate) {
+      return "Term end date must be after start date";
+    }
+    
+    const prevTerm = index > 0 ? form.getValues(`academicYear.terms.${index - 1}`) : null;
+    if (prevTerm && term.startDate <= prevTerm.endDate) {
+      return "Term must start after previous term ends";
+    }
+    
+    return null;
+  };
+
+  const getTermStyles = (term: Term) => {
+    if (!term.startDate || !term.endDate) {
+      return { left: "0%", width: "0%" };
+    }
+
+    const start = form.getValues("academicYear.startDate");
+    const end = form.getValues("academicYear.endDate");
+    
+    if (!start || !end) {
+      return { left: "0%", width: "0%" };
+    }
+    
+    const totalDays = end.getTime() - start.getTime();
+    
+    if (totalDays <= 0) {
+      return { left: "0%", width: "0%" };
+    }
+    
+    const termStart = (term.startDate.getTime() - start.getTime()) / totalDays * 100;
+    const termWidth = (term.endDate.getTime() - term.startDate.getTime()) / totalDays * 100;
+    
+    return {
+      left: `${Math.max(0, Math.min(100, termStart))}%`,
+      width: `${Math.max(0, Math.min(100 - termStart, termWidth))}%`
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -200,11 +271,12 @@ const AcademicYearSetup = () => {
             <span>Step 3 of 5: Academic Year Configuration</span>
             <span>{calculateProgress()}% Complete</span>
           </div>
-          <div className={styles.progressContainer}>
-                      <div
-                        className={`${styles.progressBar} ${styles.progressBarDynamic}`}
-                      />
-                    </div>
+          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+            <div 
+              className="bg-primary h-full transition-all duration-300 ease-in-out"
+              style={{ width: `${calculateProgress()}%` }}
+            />
+          </div>
         </div>
 
         <Form {...form}>
@@ -219,12 +291,13 @@ const AcademicYearSetup = () => {
                     <FormControl>
                       <Input {...field} placeholder="e.g., 2025-2026" />
                     </FormControl>
+                    <p className="text-sm text-muted-foreground">Format: YYYY-YYYY</p>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="grid gap-4">
+              <div className="grid gap-4 mt-4">
                 <FormField
                   control={form.control}
                   name="academicYear"
@@ -250,20 +323,20 @@ const AcademicYearSetup = () => {
             {form.watch("academicYear.terms").length > 0 && (
               <Card className="p-4">
                 <h3 className="font-semibold mb-4">Terms Timeline</h3>
-                <div className={styles.termTimelineContainer}>
-                  {form.watch("academicYear.terms").map((term, index) => {
-                    const start = form.getValues("academicYear.startDate");
-                    const end = form.getValues("academicYear.endDate");
-                    const totalDays = end.getTime() - start.getTime();
-                    const termStart = (term.startDate.getTime() - start.getTime()) / totalDays * 100;
-                    const termWidth = (term.endDate.getTime() - term.startDate.getTime()) / totalDays * 100;
-                    
+                <div className="relative h-16 bg-secondary/30 rounded-lg overflow-hidden">
+                  {form.watch("academicYear.terms").map((term) => {
+                    // Ensure the term has all required properties before rendering
+                    if (!term.id || !term.name || !term.startDate || !term.endDate || term.order === undefined) {
+                      return null;
+                    }
+                    const styles = getTermStyles(term as Term);
                     return (
                       <div
                         key={term.id}
-                        className={styles.termBlock}
+                        className="absolute top-0 h-full bg-primary/20 hover:bg-primary/30 transition-colors rounded flex items-center justify-center text-sm font-medium"
+                        style={styles}
                       >
-                        {term.name}
+                        <span className="px-2 truncate">{term.name}</span>
                       </div>
                     );
                   })}
@@ -295,12 +368,20 @@ const AcademicYearSetup = () => {
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="group"
+                              onKeyDown={(e) => handleKeyDown(e, index)}
+                              tabIndex={0}
+                              role="listitem"
+                              aria-label={`Term ${index + 1}`}
+                              className="group focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg"
                             >
                               <Card className="p-4 hover:shadow-md transition-shadow">
                                 <div className="flex items-start gap-4">
-                                  <div className="mt-2 cursor-move">
+                                  <div 
+                                    {...provided.dragHandleProps}
+                                    className="mt-2 cursor-move"
+                                    role="button"
+                                    aria-label="Drag to reorder"
+                                  >
                                     <GripVertical className="w-5 h-5 text-gray-400" />
                                   </div>
                                   <div className="flex-1 space-y-4">
@@ -359,6 +440,15 @@ const AcademicYearSetup = () => {
                                         )}
                                       />
                                     </div>
+                                    {/* Term date validation feedback */}
+                                    {getTermDateValidation(index) && (
+                                      <Alert variant="destructive" className="mt-2">
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription>
+                                          {getTermDateValidation(index)}
+                                        </AlertDescription>
+                                      </Alert>
+                                    )}
                                   </div>
                                   <Button
                                     type="button"
@@ -366,6 +456,7 @@ const AcademicYearSetup = () => {
                                     size="icon"
                                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={() => removeTerm(index)}
+                                    aria-label="Remove term"
                                   >
                                     <Trash2 className="w-4 h-4 text-red-500" />
                                   </Button>
@@ -381,6 +472,28 @@ const AcademicYearSetup = () => {
                 </Droppable>
               </DragDropContext>
             </div>
+
+            {/* Summary View */}
+            {form.watch("academicYear.terms").length > 0 && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-4">Academic Year Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Academic Year:</span>{" "}
+                    {form.watch("academicYear.name")}
+                  </p>
+                  <p>
+                    <span className="font-medium">Duration:</span>{" "}
+                    {form.watch("academicYear.startDate")?.toLocaleDateString()} to{" "}
+                    {form.watch("academicYear.endDate")?.toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Number of Terms:</span>{" "}
+                    {form.watch("academicYear.terms").length}
+                  </p>
+                </div>
+              </Card>
+            )}
 
             {/* Validation Errors */}
             {form.formState.errors.academicYear?.terms && (

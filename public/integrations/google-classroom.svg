@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" rx="32" fill="#F4B400"/>
+  <rect x="32" y="32" width="192" height="192" rx="16" fill="#1E8E3E"/>
+  <path d="M128 80C140 80 150 90 150 102C150 114 140 124 128 124C116 124 106 114 106 102C106 90 116 80 128 80Z" fill="white"/>
+  <path d="M168 124C180 124 190 134 190 146C190 158 180 168 168 168C156 168 146 158 146 146C146 134 156 124 168 124Z" fill="white" fill-opacity="0.5"/>
+  <path d="M88 124C100 124 110 134 110 146C110 158 100 168 88 168C76 168 66 158 66 146C66 134 76 124 88 124Z" fill="white" fill-opacity="0.5"/>
+  <rect x="32" y="200" width="48" height="8" fill="white"/>
+</svg>

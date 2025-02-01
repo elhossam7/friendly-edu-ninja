@@ -80,7 +80,7 @@ const AcademicYearSetup = () => {
         title: "Success",
         description: "Academic year setup completed successfully",
       });
-      navigate("/setup/step4"); // Navigate to next step
+      navigate("/setup/class"); // Navigate to next step (Class and Section Setup)
     } catch (error) {
       toast({
         title: "Error",
@@ -122,6 +122,30 @@ const AcademicYearSetup = () => {
     form.setValue("academicYear.terms", updatedTerms);
   };
 
+  const handleNext = async () => {
+    setIsLoading(true);
+    try {
+      // API call simulation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Academic Year setup complete",
+        description: "Moving to Class and Section setup..."
+      });
+      
+      // Fix: Change the navigation path from "/setup/ClassAndSectionSetup" to "/setup/class"
+      navigate("/setup/class"); // This should match the route defined in App.tsx
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save academic year setup",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -137,8 +161,7 @@ const AcademicYearSetup = () => {
           </div>
           <div className="h-2 w-full bg-gray-200 rounded-full">
             <div
-              className="h-2 bg-[#9b87f5] rounded-full"
-              style={{ width: "60%" }}
+              className="h-2 bg-[#9b87f5] rounded-full progress-bar"
             />
           </div>
         </div>

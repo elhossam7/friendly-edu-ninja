@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import InstitutionRegistration from "./pages/InstitutionRegistration";
+import ClassAndSectionSetup from './pages/ClassAndSectionSetup';
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/register" element={<InstitutionRegistration />} />
           <Route path="/setup/roles" element={<RolesSetup />} />
           <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
+          <Route path="/setup/class" element={<ClassAndSectionSetup />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

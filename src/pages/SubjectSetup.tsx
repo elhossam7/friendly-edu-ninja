@@ -73,6 +73,19 @@ export default function SubjectSetup() {
   const [isLoading, setIsLoading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // Check if user has completed previous setup
+  React.useEffect(() => {
+    const classSetupData = localStorage.getItem('classSetupData');
+    if (!classSetupData) {
+      toast({
+        title: "Error",
+        description: "Please complete the class setup first",
+        variant: "destructive",
+      });
+      navigate("/setup/class");
+    }
+  }, [navigate, toast]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -275,360 +288,364 @@ export default function SubjectSetup() {
           </div>
         </div>
 
-        <div className="space-y-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Search subjects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-                aria-label="Search subjects"
-              />
-            </div>
-            <Select
-              value={selectedFilter}
-              onValueChange={setSelectedFilter}
-              aria-label="Filter subjects"
-            >
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Filter subjects" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Subjects</SelectItem>
-                <SelectItem value="withResources">With Resources</SelectItem>
-                <SelectItem value="withoutResources">Without Resources</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="space-y-8">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search subjects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                    aria-label="Search subjects"
+                  />
+                </div>
+                <Select
+                  value={selectedFilter}
+                  onValueChange={setSelectedFilter}
+                  aria-label="Filter subjects"
+                >
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Filter subjects" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Subjects</SelectItem>
+                    <SelectItem value="withResources">With Resources</SelectItem>
+                    <SelectItem value="withoutResources">Without Resources</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {selectedSubjects.length > 0 && (
-            <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
-              <span className="text-sm font-medium">
-                {selectedSubjects.length} subject{selectedSubjects.length === 1 ? '' : 's'} selected
-              </span>
-              <div className="flex gap-2">
+              {selectedSubjects.length > 0 && (
+                <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
+                  <span className="text-sm font-medium">
+                    {selectedSubjects.length} subject{selectedSubjects.length === 1 ? '' : 's'} selected
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleBulkCopy}
+                      aria-label="Duplicate selected subjects"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Duplicate
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleBulkDelete}
+                      aria-label="Delete selected subjects"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {filteredSubjects.length === 0 ? (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    No subjects found matching your search criteria
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={selectedSubjects.length === form.getValues("subjects").length}
+                    onChange={handleSelectAll}
+                    aria-label="Select all subjects"
+                  />
+                  <span className="text-sm text-muted-foreground">Select all</span>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {filteredSubjects.map((field, index) => (
+                  <Card 
+                    key={field.id} 
+                    className={`p-6 ${selectedSubjects.includes(field.id) ? 'ring-2 ring-primary' : ''}`}
+                    role="region"
+                    aria-label={`Subject ${index + 1}: ${form.watch(`subjects.${index}.name`) || 'Untitled Subject'}`}
+                  >
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4"
+                          checked={selectedSubjects.includes(field.id)}
+                          onChange={() => handleSelectSubject(field.id)}
+                          aria-label={`Select subject ${index + 1}`}
+                        />
+                        <h3 className="text-lg font-semibold">Subject {index + 1}</h3>
+                      </div>
+                      {index > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                          aria-label={`Remove subject ${index + 1}`}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid gap-6">
+                      <FormField
+                        control={form.control}
+                        name={`subjects.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Subject Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="e.g., Mathematics" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`subjects.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                {...field}
+                                placeholder="Brief description of the subject"
+                                className="resize-none"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`subjects.${index}.teacherId`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Assigned Teacher</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Select teacher" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="curriculum">
+                          <AccordionTrigger>Curriculum Details</AccordionTrigger>
+                          <AccordionContent className="space-y-6">
+                            <FormField
+                              control={form.control}
+                              name={`subjects.${index}.curriculum.syllabus`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Syllabus</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      {...field}
+                                      placeholder="Detailed syllabus for the subject"
+                                      className="resize-none"
+                                      rows={4}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-center">
+                                <FormLabel>Learning Objectives</FormLabel>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => addLearningObjective(index)}
+                                >
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Add Objective
+                                </Button>
+                              </div>
+                              {form.watch(`subjects.${index}.curriculum.learningObjectives`).map(
+                                (_, objectiveIndex) => (
+                                  <div key={objectiveIndex} className="flex gap-2">
+                                    <FormField
+                                      control={form.control}
+                                      name={`subjects.${index}.curriculum.learningObjectives.${objectiveIndex}`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                          <FormControl>
+                                            <Input
+                                              {...field}
+                                              placeholder={`Objective ${objectiveIndex + 1}`}
+                                            />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => removeLearningObjective(index, objectiveIndex)}
+                                      aria-label={`Remove objective ${objectiveIndex + 1}`}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                )
+                              )}
+                            </div>
+
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-center">
+                                <FormLabel>Resources</FormLabel>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    accept={ACCEPTED_FILE_TYPES.join(",")}
+                                    onChange={(e) => handleFileUpload(e, index)}
+                                    aria-label="Upload resource file"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    aria-label="Upload resource"
+                                  >
+                                    <Upload className="w-4 h-4 mr-2" />
+                                    Upload File
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div className="grid gap-2">
+                                {form.watch(`subjects.${index}.curriculum.resources`).map(
+                                  (resource, resourceIndex) => (
+                                    <div
+                                      key={resource.id}
+                                      className="flex items-center justify-between p-2 rounded-lg border"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        {resource.type === "document" && (
+                                          <FileText className="w-4 h-4 text-blue-500" />
+                                        )}
+                                        {resource.type === "video" && (
+                                          <Video className="w-4 h-4 text-red-500" />
+                                        )}
+                                        {resource.type === "link" && (
+                                          <LinkIcon className="w-4 h-4 text-green-500" />
+                                        )}
+                                        <span className="text-sm font-medium">
+                                          {resource.name}
+                                        </span>
+                                        {resource.size && (
+                                          <Badge variant="secondary" className="ml-2">
+                                            {(resource.size / 1024 / 1024).toFixed(2)} MB
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                          const resources = form.getValues(
+                                            `subjects.${index}.curriculum.resources`
+                                          );
+                                          resources.splice(resourceIndex, 1);
+                                          form.setValue(
+                                            `subjects.${index}.curriculum.resources`,
+                                            resources
+                                          );
+                                        }}
+                                      >
+                                        <Trash2 className="w-4 h-4 text-red-500" />
+                                      </Button>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() =>
+                  append({
+                    id: crypto.randomUUID(),
+                    name: "",
+                    description: "",
+                    teacherId: "",
+                    curriculum: {
+                      syllabus: "",
+                      learningObjectives: [""],
+                      resources: [],
+                    },
+                  })
+                }
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Subject
+              </Button>
+
+              {form.formState.errors.subjects && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {form.formState.errors.subjects.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex justify-end gap-4">
                 <Button
+                  type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={handleBulkCopy}
-                  aria-label="Duplicate selected subjects"
+                  onClick={() => navigate("/setup/class")}
+                  disabled={isLoading}
+                  aria-label="Go back to class setup"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Duplicate
+                  Previous
                 </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBulkDelete}
-                  aria-label="Delete selected subjects"
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  aria-label="Complete subject setup"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {isLoading ? "Saving..." : "Complete Setup"}
                 </Button>
               </div>
             </div>
-          )}
-
-          {filteredSubjects.length === 0 ? (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                No subjects found matching your search criteria
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="flex items-center gap-2 mb-4">
-              <input
-                type="checkbox"
-                className="h-4 w-4"
-                checked={selectedSubjects.length === form.getValues("subjects").length}
-                onChange={handleSelectAll}
-                aria-label="Select all subjects"
-              />
-              <span className="text-sm text-muted-foreground">Select all</span>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {filteredSubjects.map((field, index) => (
-              <Card 
-                key={field.id} 
-                className={`p-6 ${selectedSubjects.includes(field.id) ? 'ring-2 ring-primary' : ''}`}
-                role="region"
-                aria-label={`Subject ${index + 1}: ${form.watch(`subjects.${index}.name`) || 'Untitled Subject'}`}
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      checked={selectedSubjects.includes(field.id)}
-                      onChange={() => handleSelectSubject(field.id)}
-                      aria-label={`Select subject ${index + 1}`}
-                    />
-                    <h3 className="text-lg font-semibold">Subject {index + 1}</h3>
-                  </div>
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                      aria-label={`Remove subject ${index + 1}`}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid gap-6">
-                  <FormField
-                    control={form.control}
-                    name={`subjects.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Subject Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="e.g., Mathematics" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`subjects.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            placeholder="Brief description of the subject"
-                            className="resize-none"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`subjects.${index}.teacherId`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Assigned Teacher</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Select teacher" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="curriculum">
-                      <AccordionTrigger>Curriculum Details</AccordionTrigger>
-                      <AccordionContent className="space-y-6">
-                        <FormField
-                          control={form.control}
-                          name={`subjects.${index}.curriculum.syllabus`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Syllabus</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  {...field}
-                                  placeholder="Detailed syllabus for the subject"
-                                  className="resize-none"
-                                  rows={4}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <FormLabel>Learning Objectives</FormLabel>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => addLearningObjective(index)}
-                            >
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Objective
-                            </Button>
-                          </div>
-                          {form.watch(`subjects.${index}.curriculum.learningObjectives`).map(
-                            (_, objectiveIndex) => (
-                              <div key={objectiveIndex} className="flex gap-2">
-                                <FormField
-                                  control={form.control}
-                                  name={`subjects.${index}.curriculum.learningObjectives.${objectiveIndex}`}
-                                  render={({ field }) => (
-                                    <FormItem className="flex-1">
-                                      <FormControl>
-                                        <Input
-                                          {...field}
-                                          placeholder={`Objective ${objectiveIndex + 1}`}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => removeLearningObjective(index, objectiveIndex)}
-                                  aria-label={`Remove objective ${objectiveIndex + 1}`}
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
-                              </div>
-                            )
-                          )}
-                        </div>
-
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-center">
-                            <FormLabel>Resources</FormLabel>
-                            <div className="flex gap-2">
-                              <input
-                                type="file"
-                                ref={fileInputRef}
-                                className="hidden"
-                                accept={ACCEPTED_FILE_TYPES.join(",")}
-                                onChange={(e) => handleFileUpload(e, index)}
-                                aria-label="Upload resource file"
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => fileInputRef.current?.click()}
-                                aria-label="Upload resource"
-                              >
-                                <Upload className="w-4 h-4 mr-2" />
-                                Upload File
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="grid gap-2">
-                            {form.watch(`subjects.${index}.curriculum.resources`).map(
-                              (resource, resourceIndex) => (
-                                <div
-                                  key={resource.id}
-                                  className="flex items-center justify-between p-2 rounded-lg border"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    {resource.type === "document" && (
-                                      <FileText className="w-4 h-4 text-blue-500" />
-                                    )}
-                                    {resource.type === "video" && (
-                                      <Video className="w-4 h-4 text-red-500" />
-                                    )}
-                                    {resource.type === "link" && (
-                                      <LinkIcon className="w-4 h-4 text-green-500" />
-                                    )}
-                                    <span className="text-sm font-medium">
-                                      {resource.name}
-                                    </span>
-                                    {resource.size && (
-                                      <Badge variant="secondary" className="ml-2">
-                                        {(resource.size / 1024 / 1024).toFixed(2)} MB
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                      const resources = form.getValues(
-                                        `subjects.${index}.curriculum.resources`
-                                      );
-                                      resources.splice(resourceIndex, 1);
-                                      form.setValue(
-                                        `subjects.${index}.curriculum.resources`,
-                                        resources
-                                      );
-                                    }}
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                  </Button>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() =>
-              append({
-                id: crypto.randomUUID(),
-                name: "",
-                description: "",
-                teacherId: "",
-                curriculum: {
-                  syllabus: "",
-                  learningObjectives: [""],
-                  resources: [],
-                },
-              })
-            }
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Subject
-          </Button>
-
-          {form.formState.errors.subjects && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {form.formState.errors.subjects.message}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/setup/class")}
-              disabled={isLoading}
-              aria-label="Go back to class setup"
-            >
-              Previous
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              aria-label="Complete subject setup"
-            >
-              {isLoading ? "Saving..." : "Complete Setup"}
-            </Button>
-          </div>
-        </div>
+          </form>
+        </Form>
       </div>
     </div>
   );
-};
+}

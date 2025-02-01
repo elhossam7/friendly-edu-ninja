@@ -88,6 +88,9 @@ const ClassAndSectionSetup = () => {
   const onSubmit = async (data: z.infer<typeof classSchema>) => {
     setIsLoading(true);
     try {
+      // Save the data to localStorage for persistence
+      localStorage.setItem('classSetupData', JSON.stringify(data));
+      
       // API call simulation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -96,8 +99,10 @@ const ClassAndSectionSetup = () => {
         description: "Class and section setup completed successfully",
       });
       
+      // Navigate to the subject setup page
       navigate("/setup/subject");
     } catch (error) {
+      console.error('Error saving class setup:', error);
       toast({
         title: "Error",
         description: "Failed to save class setup",

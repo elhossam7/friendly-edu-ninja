@@ -102,6 +102,7 @@ const RolesSetup = () => {
   const { toast } = useToast();
   const [roles, setRoles] = React.useState<Role[]>(defaultRoles);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
   const [newRoleName, setNewRoleName] = React.useState("");
   const [showCustomRoleForm, setShowCustomRoleForm] = React.useState(false);
   const [customRoleDescription, setCustomRoleDescription] = React.useState("");
@@ -173,6 +174,29 @@ const RolesSetup = () => {
       return;
     }
     setRoles(roles.filter((role) => role.id !== roleId));
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      // Your existing save logic here
+      
+      toast({
+        title: "Roles Setup Complete",
+        description: "Your roles and permissions have been configured successfully.",
+      });
+      
+      // Redirect to academic year setup with correct path
+      navigate('/setup/academic-year');
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save roles configuration. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleNext = async () => {
@@ -331,6 +355,9 @@ const RolesSetup = () => {
         </div>
 
         <div className="flex justify-end">
+          <Button onClick={handleSave} size="lg" disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
           <Button onClick={handleNext} size="lg" disabled={isLoading}>
             {isLoading ? "Saving..." : "Next: Academic Year Setup"}
           </Button>

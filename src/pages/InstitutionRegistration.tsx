@@ -86,24 +86,24 @@ const InstitutionRegistration = () => {
 
   const onSubmit = async (data: RegistrationForm) => {
     try {
-      // Here you would typically make an API call to register the institution
-      console.log("Form submitted:", data);
-
-      // Show success toast with more informative message
+      setIsSaving(true);
+      // Your existing save logic here
+      
       toast({
-        title: "Registration successful!",
-        description: "Your institution details have been saved. The next steps are coming soon!",
+        title: "Registration Complete",
+        description: "Your institution has been registered successfully.",
       });
-
-      setTimeout(() => {
-        navigate("/setup/roles");
-      }, 1000);
+      
+      // Redirect to roles setup with correct path
+      navigate('/setup/roles');
     } catch (error) {
       toast({
-        title: "Registration failed",
-        description: "Please try again later.",
+        title: "Error",
+        description: "Failed to register institution. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 

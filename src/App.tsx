@@ -10,6 +10,7 @@ import RolesSetup from "./pages/RolesSetup";
 import AcademicYearSetup from "./pages/AcademicYearSetup";
 import ClassAndSectionSetup from "./pages/ClassAndSectionSetup";
 import SubjectSetup from "./pages/SubjectSetup";
+import SetupSuccess from "./pages/SetupSuccess";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
             <Route path="/setup/class" element={<ClassAndSectionSetup />} />
             <Route path="/setup/subject" element={<SubjectSetup />} />
+            <Route path="/setup/success" element={<SetupSuccess />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

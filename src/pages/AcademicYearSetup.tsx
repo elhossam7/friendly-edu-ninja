@@ -94,21 +94,23 @@ const AcademicYearSetup = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof academicYearSchema>) => {
-    setIsLoading(true);
+  const onSubmit = async (data: AcademicYearFormData) => {
     try {
+      setIsLoading(true);
       // Save data logic here
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       
       toast({
-        title: "Success",
-        description: "Academic year setup completed successfully",
+        title: "Academic Year Setup Complete",
+        description: "Your academic year configuration has been saved successfully.",
       });
-      navigate("/setup/class"); // Navigate to next step (Class and Section Setup)
+      
+      // Redirect to class setup with correct path
+      navigate('/setup/class');
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save academic year setup",
+        description: "Failed to save academic year setup. Please try again.",
         variant: "destructive",
       });
     } finally {

@@ -4,12 +4,20 @@ import { CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const SetupSuccess = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [progress, setProgress] = React.useState(0);
 
   useEffect(() => {
+    // Show welcome toast
+    toast({
+      title: "Welcome to Your Dashboard!",
+      description: "Your institution is now ready to use. Let's get started!",
+    });
+
     // Start progress animation
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
@@ -24,9 +32,9 @@ const SetupSuccess = () => {
     }, 50);
 
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, [navigate, toast]);
 
-  const handleSkip = () => {
+  const handleGoToDashboard = () => {
     navigate('/dashboard');
   };
 
@@ -39,12 +47,11 @@ const SetupSuccess = () => {
           </div>
           <h1 className="text-2xl font-bold mb-2">Setup Complete!</h1>
           <p className="text-muted-foreground mb-6">
-            Your institution has been successfully configured. You'll be redirected to your dashboard shortly.
+            Congratulations! Your institution has been successfully configured. You'll be redirected to your dashboard shortly.
           </p>
           <Progress value={progress} className="mb-6" />
           <Button 
-            variant="outline" 
-            onClick={handleSkip}
+            onClick={handleGoToDashboard}
             className="w-full"
           >
             Go to Dashboard Now

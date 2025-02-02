@@ -170,21 +170,21 @@ export default function SubjectSetup() {
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       // API call simulation
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
-        title: "Success",
-        description: "Subject and curriculum setup completed successfully",
+        title: "Setup Complete!",
+        description: "Your subject configuration has been saved successfully.",
       });
       
-      navigate("/setup/complete");
+      navigate('/setup/success');
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save subject setup",
+        description: "Failed to save subject configuration. Please try again.",
         variant: "destructive",
       });
     } finally {

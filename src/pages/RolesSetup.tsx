@@ -216,19 +216,23 @@ const RolesSetup = () => {
 
     setIsLoading(true);
     try {
+      // Save roles data to localStorage for persistence
+      localStorage.setItem('rolesSetupData', JSON.stringify(roles));
+      
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       
       toast({
-        title: "Roles saved successfully!",
-        description: "Moving to Academic Year setup...",
+        title: "Success",
+        description: "Roles configuration saved successfully",
       });
 
+      // Navigate to next step
       navigate("/setup/academic-year");
     } catch (error) {
       toast({
-        title: "Error saving roles",
-        description: "Please try again",
+        title: "Error",
+        description: "Failed to save roles configuration",
         variant: "destructive",
       });
     } finally {
@@ -354,12 +358,19 @@ const RolesSetup = () => {
           ))}
         </div>
 
-        <div className="flex justify-end">
-          <Button onClick={handleSave} size="lg" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+        <div className="flex justify-end gap-4">
+          <Button 
+            variant="outline"
+            onClick={() => navigate("/register")} // Go back to registration
+            disabled={isLoading || isSaving}
+          >
+            Previous
           </Button>
-          <Button onClick={handleNext} size="lg" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Next: Academic Year Setup"}
+          <Button 
+            onClick={handleNext}
+            disabled={isLoading || isSaving}
+          >
+            {isLoading ? "Saving..." : "Next"}
           </Button>
         </div>
       </div>

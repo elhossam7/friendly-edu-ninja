@@ -14,17 +14,21 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const classSchema = z.object({
-  classes: z.array(z.object({
-    id: z.string(),
-    name: z.string().min(1, "Class name is required"),
-    teacherId: z.string().min(1, "Teacher is required"),
-    sections: z.array(z.object({
+  classes: z.array(
+    z.object({
       id: z.string(),
-      name: z.string().min(1, "Section name is required"),
-      capacity: z.number().optional(),
-      order: z.number()
-    }))
-  }))
+      name: z.string().min(1, "Class name is required"),
+      teacherId: z.string().min(1, "Teacher is required"),
+      sections: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string().min(1, "Section name is required"),
+          capacity: z.number().optional(),
+          order: z.number()
+        })
+      ).min(1, "Each class must have at least one section")
+    })
+  ).min(1, "You must add at least one class")
 });
 
 const ClassAndSectionSetup = () => {
@@ -88,6 +92,35 @@ const ClassAndSectionSetup = () => {
   const onSubmit = async (data: z.infer<typeof classSchema>) => {
     setIsLoading(true);
     try {
+      // Validate that at least one class exists with at least one section
+      if (data.classes.length === 0) {
+        toast({
+          title: "Validation Error",
+          description: "You must add at least one class",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Additional validation for each class
+      const invalidClasses = data.classes.filter(
+        classItem => 
+          !classItem.name.trim() || 
+          !classItem.teacherId || 
+          classItem.sections.length === 0
+      );
+
+      if (invalidClasses.length > 0) {
+        toast({
+          title: "Incomplete Setup",
+          description: "Please ensure each class has a name, assigned teacher, and at least one section",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // Save the data to localStorage for persistence
       localStorage.setItem('classSetupData', JSON.stringify(data));
       
@@ -118,7 +151,12 @@ const ClassAndSectionSetup = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight">Class and Section Setup</h1>
-          <p className="text-muted-foreground">Organize your institution's structure</p>
+          <p className="text-muted-foreground">
+            Organize your institution's structure
+            <span className="block text-sm text-red-500 mt-1">
+              * At least one class with one section is required
+            </span>
+          </p>
         </div>
 
         <div className="space-y-2">
@@ -131,6 +169,23 @@ const ClassAndSectionSetup = () => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {form.watch("classes").length === 0 && (
+              <div className="text-center space-y-4">
+                <p className="text-muted-foreground">
+                  You haven't added any classes yet. Get started by adding your first class!
+                </p>
+                <Button 
+                  type="button" 
+                  variant="default" 
+                  onClick={addClass}
+                  className="mx-auto"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Class
+                </Button>
+              </div>
+            )}
+
             {form.watch("classes").map((classItem, classIndex) => (
               <Card key={classItem.id}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -282,29 +337,21 @@ const ClassAndSectionSetup = () => {
               </Card>
             ))}
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-dashed"
-              onClick={addClass}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Class
-            </Button>
-
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-                disabled={isLoading}
-              >
-                Previous
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Next"}
-              </Button>
-            </div>
+            {form.watch("classes").length > 0 && (
+              <div className="flex justify-between items-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addClass}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Another Class
+                </Button>
+                <Button type="submit">
+                  Continue to Subject Setup
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </div>

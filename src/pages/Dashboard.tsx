@@ -20,6 +20,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { ReactNode } from "react";
+import { ProfileButton } from "@/components/ui/profile-button";
 
 interface StatsItem {
   title: string;
@@ -203,12 +204,7 @@ const Dashboard = () => {
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary animate-pulse"></span>
             </button>
-            <button 
-              className="p-2 hover:bg-accent rounded-full transition-all duration-300 hover:scale-105 hover:rotate-45"
-              title="Settings"
-            >
-              <Settings className="h-5 w-5" />
-            </button>
+            <ProfileButton />
           </div>
         </div>
       </header>

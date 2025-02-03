@@ -1,17 +1,13 @@
 // Import the Genkit core libraries and plugins.
-import {genkit, z} from "genkit";
-import {googleAI} from "@genkit-ai/googleai";
-
+import {genkit} from "genkit";
 // Import models from the Google AI plugin. The Google AI API provides access to
 // several generative models. Here, we import Gemini 1.5 Flash.
-import {gemini15Flash} from "@genkit-ai/googleai";
+import {googleAI, gemini15Flash} from "@genkit-ai/googleai";
 
 // From the Firebase plugin, import the functions needed to deploy flows using
 // Cloud Functions.
 import {firebaseAuth} from "@genkit-ai/firebase/auth";
 import {onFlow} from "@genkit-ai/firebase/functions";
-
-const ai = genkit({
   plugins: [
     // Load the Google AI plugin. You can optionally specify your API key
     // by passing in a config object; if you don't, the Google AI plugin uses
@@ -30,12 +26,13 @@ export const menuSuggestionFlow = onFlow(
     outputSchema: z.string(),
     authPolicy: firebaseAuth((user) => {
       // By default, the firebaseAuth policy requires that all requests have an
+      // The `user` parameter represents the authenticated user making the request.
+      // By default, the firebaseAuth policy requires that all requests have an
       // `Authorization: Bearer` header containing the user's Firebase
       // Authentication ID token. All other requests are rejected with error
       // 403. If your app client uses the Cloud Functions for Firebase callable
       // functions feature, the library automatically attaches this header to
       // requests.
-
       // You should also set additional policy requirements as appropriate for
       // your app. For example:
       // if (!user.email_verified) {
@@ -44,15 +41,17 @@ export const menuSuggestionFlow = onFlow(
     }),
   },
   async (subject) => {
-    // Construct a request and send it to the model API.
-    const prompt =
-      `Suggest an item for the menu of a ${subject} themed restaurant`;
-    const llmResponse = await ai.generate({
-      model: gemini15Flash,
+    const prompt = `Suggest an item for the menu of a ${subject} themed restaurant`;
+    
+    const prompt = `Suggest an item for the menu of a ${subject} themed restaurant`;
       prompt: prompt,
       config: {
         temperature: 1,
-      },
+        // The temperature parameter controls the randomness of the generated text.
+        // A higher value like 1 will make the output more random, while a lower value
+        // like 0 will make it more deterministic.
+                temperature: 1,
+    });
     });
 
     // Handle the response from the model API. In this sample, we just

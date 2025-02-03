@@ -36,35 +36,7 @@ import {
   MoreVertical,
   ArrowUpDown
 } from 'lucide-react';
-
-// Fetch students from local storage or API
-const fetchStudents = () => {
-  const studentsData = localStorage.getItem('studentEnrollmentData');
-  if (studentsData) {
-    try {
-      return JSON.parse(studentsData);
-    } catch (error) {
-      console.error('Error parsing students data', error);
-      return [];
-    }
-  }
-  return [];
-};
-
-// Fetch subjects from local storage or API
-const fetchSubjects = () => {
-  const subjectsData = localStorage.getItem('subjectSetupData');
-  if (subjectsData) {
-    try {
-      const parsedData = JSON.parse(subjectsData);
-      return parsedData.subjects.map((subject: any) => subject.name);
-    } catch (error) {
-      console.error('Error parsing subjects data', error);
-      return [];
-    }
-  }
-  return [];
-};
+import { supabase } from '@/lib/supabaseClient';
 
 // Zod Schemas for Validation
 const attendanceSchema = z.object({
@@ -116,12 +88,25 @@ const StudentRecords: React.FC = () => {
 
   // Load students and subjects on component mount
   useEffect(() => {
-    const loadedStudents = fetchStudents();
-    const loadedSubjects = fetchSubjects();
-    
-    setStudents(loadedStudents);
-    setSubjects(loadedSubjects);
-  }, []);
+    const fetchStudents = async () => {
+      const { data, error } = await supabase
+        .from('students')
+        .select('*');
+
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch students',
+          variant: 'destructive',
+        });
+        console.error('Error fetching students:', error);
+      } else {
+        setStudents(data);
+      }
+    };
+
+    fetchStudents();
+  }, [toast]);
 
   // Attendance Tracking
   const handleAttendanceSubmit = (data: z.infer<typeof attendanceSchema>) => {

@@ -27,7 +27,15 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { CalendarIcon, FileUpload, PlusCircle } from 'lucide-react';
+import { 
+  CalendarIcon, 
+  Upload as FileUpload, 
+  PlusCircle,
+  Search,
+  Filter,
+  MoreVertical,
+  ArrowUpDown
+} from 'lucide-react';
 
 // Fetch students from local storage or API
 const fetchStudents = () => {

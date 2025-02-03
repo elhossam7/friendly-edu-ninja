@@ -1,23 +1,176 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  Search, 
-  Users, 
-  GraduationCap, 
-  BookOpen,
-  Plus,
+import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
   Bell,
+  BookOpen,
+  GraduationCap,
+  Plus,
+  Search,
   Settings,
-  ChevronRight
+  Users,
+  ChevronRight,
+  Clock,
+  FileText,
+  AlertCircle
 } from "lucide-react";
+import { ReactNode } from "react";
+
+interface StatsItem {
+  title: string;
+  value: number;
+  icon: ReactNode;
+  progress: number;
+}
+
+interface QuickAction {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  onClick: () => void;
+}
+
+interface ActivityItem {
+  title: string;
+  time: string;
+  description: string;
+  icon: ReactNode;
+  key: number;
+}
 
 const Dashboard = () => {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleQuickAction = (action: string) => {
+    toast({
+      title: action,
+      description: `${action} action triggered successfully!`,
+    });
+  };
+
+  const stats: StatsItem[] = [
+    {
+      title: "Students",
+      value: 1234,
+      icon: <Users className="h-4 w-4" />,
+      progress: 75,
+    },
+    {
+      title: "Classes",
+      value: 24,
+      icon: <BookOpen className="h-4 w-4" />,
+      progress: 60,
+    },
+    {
+      title: "Teachers",
+      value: 48,
+      icon: <GraduationCap className="h-4 w-4" />,
+      progress: 90,
+    },
+  ];
+
+  const quickActions: QuickAction[] = [
+    {
+      title: "Add Student",
+      description: "Register a new student in the system",
+      icon: <Plus className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Add Student"),
+    },
+    {
+      title: "Create Class",
+      description: "Set up a new class or section",
+      icon: <BookOpen className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Create Class"),
+    },
+    {
+      title: "Add Teacher",
+      description: "Register a new teacher profile",
+      icon: <GraduationCap className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Add Teacher"),
+    },
+    {
+      title: "Schedule Class",
+      description: "Create or modify class schedules",
+      icon: <Clock className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Schedule Class"),
+    },
+    {
+      title: "Take Attendance",
+      description: "Record student attendance",
+      icon: <FileText className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Take Attendance"),
+    },
+    {
+      title: "Grade Entry",
+      description: "Enter or update student grades",
+      icon: <AlertCircle className="h-4 w-4" />,
+      onClick: () => handleQuickAction("Grade Entry"),
+    },
+  ];
+
+  const recentActivities: ActivityItem[] = [
+    {
+      title: "New Student Registration",
+      description: "John Doe was registered as a new student",
+      time: "2 hours ago",
+      icon: <Users className="h-4 w-4" />,
+      key: 1
+    },
+    {
+      title: "Class Schedule Updated",
+      description: "Grade 10-A schedule was modified",
+      time: "4 hours ago",
+      icon: <Clock className="h-4 w-4" />,
+      key: 2
+    },
+    {
+      title: "Teacher Assignment",
+      description: "Ms. Smith assigned to Mathematics",
+      time: "1 day ago",
+      icon: <GraduationCap className="h-4 w-4" />,
+      key: 3
+    }
+  ];
+
+  const upcomingEvents: ActivityItem[] = [
+    {
+      title: "Parent-Teacher Meeting",
+      description: "Annual meeting for Grade 10 parents",
+      time: "Tomorrow at 2:00 PM",
+      icon: <Clock className="h-4 w-4" />,
+      key: 4
+    },
+    {
+      title: "Science Fair",
+      description: "School-wide science project exhibition",
+      time: "Next Monday",
+      icon: <AlertCircle className="h-4 w-4" />,
+      key: 5
+    }
+  ];
+
+  const pendingTasks: ActivityItem[] = [
+    {
+      title: "Grade Submission",
+      description: "Submit final grades for Term 1",
+      time: "Due in 2 days",
+      icon: <FileText className="h-4 w-4" />,
+      key: 6
+    },
+    {
+      title: "Student Reports",
+      description: "Generate progress reports for Grade 8",
+      time: "Due next week",
+      icon: <AlertCircle className="h-4 w-4" />,
+      key: 7
+    }
+  ];
 
   React.useEffect(() => {
     // Simulate data loading
@@ -26,30 +179,34 @@ const Dashboard = () => {
     }, 1000);
   }, []);
 
-  const handleQuickAction = (action: string) => {
-    toast({
-      title: "Action Triggered",
-      description: `${action} action will be implemented soon.`,
-    });
-  };
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10">
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between py-4">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] bg-clip-text text-transparent">eduManager</h1>
+            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">Beta</span>
+          </div>
           <div className="flex items-center gap-4">
-            <Input
-              placeholder="Search..."
-              className="w-[200px] lg:w-[300px]"
-              prefix={<Search className="h-4 w-4 text-muted-foreground" />}
-            />
-            <button title="Notifications" className="relative p-2 hover:bg-accent rounded-full">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors" />
+              <Input
+                placeholder="Search anything..."
+                className="w-[200px] pl-9 lg:w-[300px] transition-all duration-300 border-muted group-hover:border-primary"
+              />
+            </div>
+            <button 
+              className="relative p-2 hover:bg-accent rounded-full transition-all duration-300 hover:scale-105"
+              title="Show notifications"
+            >
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary"></span>
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary animate-pulse"></span>
             </button>
-            <button title="Settings" className="p-2 hover:bg-accent rounded-full">
+            <button 
+              className="p-2 hover:bg-accent rounded-full transition-all duration-300 hover:scale-105 hover:rotate-45"
+              title="Settings"
+            >
               <Settings className="h-5 w-5" />
             </button>
           </div>
@@ -58,54 +215,68 @@ const Dashboard = () => {
 
       <main className="container py-6 space-y-8 animate-fade-in">
         {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <StatsCard
-            title="Students"
-            value={1234}
-            icon={Users}
-            progress={75}
-            isLoading={isLoading}
-          />
-          <StatsCard
-            title="Classes"
-            value={24}
-            icon={GraduationCap}
-            progress={60}
-            isLoading={isLoading}
-          />
-          <StatsCard
-            title="Teachers"
-            value={48}
-            icon={BookOpen}
-            progress={90}
-            isLoading={isLoading}
-          />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {stats.map((stat, index) => (
+            <Card key={stat.title} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className={cn(
+                  "p-2 rounded-full transition-colors duration-300",
+                  index === 0 ? "bg-blue-100 text-blue-700" :
+                  index === 1 ? "bg-green-100 text-green-700" :
+                  "bg-purple-100 text-purple-700"
+                )}>
+                  {stat.icon}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold mb-2">
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-20" />
+                  ) : (
+                    stat.value
+                  )}
+                </div>
+                <Progress 
+                  value={stat.progress} 
+                  className={cn(
+                    "transition-all duration-300 group-hover:h-2",
+                    index === 0 ? "bg-blue-100" :
+                    index === 1 ? "bg-green-100" :
+                    "bg-purple-100"
+                  )}
+                />
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Quick Actions */}
-        <Card className="transition-all duration-300 hover:shadow-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-primary" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Quick Actions</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {quickActions.map((action) => (
               <button
                 key={action.title}
-                onClick={() => handleQuickAction(action.title)}
-                className="group p-4 text-left rounded-lg border border-transparent hover:border-primary/20 hover:bg-primary/5 transition-all duration-200"
+                onClick={action.onClick}
+                className="group relative p-4 rounded-lg border bg-card text-card-foreground shadow hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{action.title}</h3>
-                  <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="p-2 rounded-full bg-primary/10 text-primary group-hover:scale-110 transition-transform duration-300">
+                    {action.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{action.title}</h3>
+                    <p className="text-sm text-muted-foreground">{action.description}</p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">{action.description}</p>
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Activity Tabs */}
         <Card>
@@ -118,10 +289,19 @@ const Dashboard = () => {
               </TabsList>
               <TabsContent value="recent" className="space-y-4">
                 {recentActivities.map((activity, index) => (
-                  <ActivityItem key={index} {...activity} />
+                  <ActivityItem key={activity.key} {...activity} />
                 ))}
               </TabsContent>
-              {/* Add other tab contents */}
+              <TabsContent value="upcoming" className="space-y-4">
+                {upcomingEvents.map((event, index) => (
+                  <ActivityItem key={event.key} {...event} />
+                ))}
+              </TabsContent>
+              <TabsContent value="tasks" className="space-y-4">
+                {pendingTasks.map((task, index) => (
+                  <ActivityItem key={task.key} {...task} />
+                ))}
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
@@ -131,59 +311,23 @@ const Dashboard = () => {
 };
 
 // Helper Components
-const StatsCard = ({ title, value, icon: Icon, progress, isLoading }) => (
-  <Card className="transition-all duration-300 hover:shadow-md">
-    <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      <Icon className="h-4 w-4 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      {isLoading ? (
-        <div className="h-9 w-24 animate-pulse bg-muted rounded" />
-      ) : (
-        <>
-          <div className="text-2xl font-bold">{value.toLocaleString()}</div>
-          <Progress value={progress} className="mt-3" />
-        </>
-      )}
-    </CardContent>
-  </Card>
-);
-
-const ActivityItem = ({ title, time, description }) => (
+const ActivityItem = ({ title, time, description, icon }: { 
+  title: string;
+  time: string;
+  description: string;
+  icon: ReactNode;
+}) => (
   <div className="flex gap-4 items-start p-4 rounded-lg hover:bg-muted/50 transition-colors">
     <div className="h-2 w-2 mt-2 rounded-full bg-primary shrink-0" />
-    <div>
-      <div className="font-medium">{title}</div>
-      <div className="text-sm text-muted-foreground">{description}</div>
-      <div className="text-xs text-muted-foreground mt-1">{time}</div>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        {icon}
+        <p className="font-medium">{title}</p>
+      </div>
+      <p className="text-sm text-muted-foreground">{description}</p>
+      <p className="text-xs text-muted-foreground">{time}</p>
     </div>
   </div>
 );
-
-// Data
-const quickActions = [
-  {
-    title: "Add Student",
-    description: "Register a new student in the system"
-  },
-  {
-    title: "Create Class",
-    description: "Set up a new class or section"
-  },
-  {
-    title: "Add Teacher",
-    description: "Register a new teacher profile"
-  }
-];
-
-const recentActivities = [
-  {
-    title: "New Student Registration",
-    description: "John Doe was added to Grade 10-A",
-    time: "2 hours ago"
-  },
-  // Add more activities
-];
 
 export default Dashboard;

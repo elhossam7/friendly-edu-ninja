@@ -67,7 +67,7 @@ const formSchema = z.object({
   subjects: z.array(subjectSchema).min(1, "At least one subject is required"),
 });
 
-export default function SubjectSetup() {
+const SubjectSetup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -171,22 +171,6 @@ export default function SubjectSetup() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-<<<<<<< HEAD
-      setIsLoading(true);
-      // API call simulation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Setup Complete!",
-        description: "Your subject configuration has been saved successfully.",
-      });
-      
-      navigate('/setup/success');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save subject configuration. Please try again.",
-=======
       // TODO: Implement actual backend submission logic
       console.log("Submitting subjects:", data);
 
@@ -206,7 +190,6 @@ export default function SubjectSetup() {
       toast({
         title: "Error",
         description: "Failed to complete setup. Please try again.",
->>>>>>> c31eb2ebad5d7c89a9c0ee554ed56167176614e3
         variant: "destructive",
       });
     } finally {
@@ -671,3 +654,5 @@ export default function SubjectSetup() {
     </div>
   );
 }
+
+export default SubjectSetup;

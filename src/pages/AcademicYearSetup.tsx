@@ -22,6 +22,7 @@ import { Term, AcademicYear, AcademicYearFormData } from "../types/academic";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import styles from "@/styles/TermsTimeline.module.css";
+import "@/styles/academic-year.css";
 
 const academicYearSchema = z.object({
   academicYear: z.object({
@@ -261,267 +262,279 @@ const AcademicYearSetup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Academic Year Setup</h1>
+    <div className="academic-year-container">
+      <div className="academic-year-header">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Academic Year Setup</h1>
           <p className="text-muted-foreground">Configure your academic year and terms</p>
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Step 3 of 5: Academic Year Configuration</span>
-            <span>{calculateProgress()}% Complete</span>
+      <div className="academic-year-card">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl font-bold tracking-tight">Academic Year Setup</h1>
+            <p className="text-muted-foreground">Configure your academic year and terms</p>
           </div>
-          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-            <div 
-              className="bg-primary h-full transition-all duration-300 ease-in-out"
-              style={{ width: `${calculateProgress()}%` }}
-            />
-          </div>
-        </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Card className="p-6">
-              <FormField
-                control={form.control}
-                name="academicYear.name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Academic Year Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="e.g., 2025-2026" />
-                    </FormControl>
-                    <p className="text-sm text-muted-foreground">Format: YYYY-YYYY</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>Step 3 of 5: Academic Year Configuration</span>
+              <span>{calculateProgress()}% Complete</span>
+            </div>
+            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+              <div 
+                className="progress-bar-fill"
+                style={{ width: `${calculateProgress()}%` }}
               />
+            </div>
+          </div>
 
-              <div className="grid gap-4 mt-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <Card className="p-6">
                 <FormField
                   control={form.control}
-                  name="academicYear"
+                  name="academicYear.name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Academic Year Duration</FormLabel>
-                      <DateRangePicker
-                        from={field.value.startDate}
-                        to={field.value.endDate}
-                        onSelect={(range) => {
-                          if (range?.from) form.setValue("academicYear.startDate", range.from);
-                          if (range?.to) form.setValue("academicYear.endDate", range.to);
-                        }}
-                      />
+                      <FormLabel>Academic Year Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., 2025-2026" />
+                      </FormControl>
+                      <p className="text-sm text-muted-foreground">Format: YYYY-YYYY</p>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </div>
-            </Card>
 
-            {/* Terms Timeline Preview */}
-            {form.watch("academicYear.terms").length > 0 && (
-              <Card className="p-4">
-                <h3 className="font-semibold mb-4">Terms Timeline</h3>
-                <div className="relative h-16 bg-secondary/30 rounded-lg overflow-hidden">
-                  {form.watch("academicYear.terms").map((term) => {
-                    // Ensure the term has all required properties before rendering
-                    if (!term.id || !term.name || !term.startDate || !term.endDate || term.order === undefined) {
-                      return null;
-                    }
-                    const styles = getTermStyles(term as Term);
-                    return (
-                      <div
-                        key={term.id}
-                        className="absolute top-0 h-full bg-primary/20 hover:bg-primary/30 transition-colors rounded flex items-center justify-center text-sm font-medium"
-                        style={styles}
-                      >
-                        <span className="px-2 truncate">{term.name}</span>
-                      </div>
-                    );
-                  })}
+                <div className="grid gap-4 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="academicYear"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Academic Year Duration</FormLabel>
+                        <DateRangePicker
+                          from={field.value.startDate}
+                          to={field.value.endDate}
+                          onSelect={(range) => {
+                            if (range?.from) form.setValue("academicYear.startDate", range.from);
+                            if (range?.to) form.setValue("academicYear.endDate", range.to);
+                          }}
+                        />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </Card>
-            )}
 
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold">Terms</h2>
+              {/* Terms Timeline Preview */}
+              {form.watch("academicYear.terms").length > 0 && (
+                <Card className="p-4">
+                  <h3 className="font-semibold mb-4">Terms Timeline</h3>
+                  <div className="term-timeline">
+                    {form.watch("academicYear.terms").map((term) => {
+                      // Ensure the term has all required properties before rendering
+                      if (!term.id || !term.name || !term.startDate || !term.endDate || term.order === undefined) {
+                        return null;
+                      }
+                      const termPosition = getTermStyles(term as Term);
+                      return (
+                        <div
+                          key={term.id}
+                          className="term-item"
+                          style={{ left: termPosition.left, width: termPosition.width }}
+                        >
+                          <span className="px-2 truncate">{term.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              )}
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold" id="terms-heading">Terms</h2>
+                  <Button
+                    type="button"
+                    onClick={addTerm}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Term
+                  </Button>
+                </div>
+
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="terms">
+                    {(provided) => (
+                      <ul 
+                        {...provided.droppableProps} 
+                        ref={provided.innerRef} 
+                        className="terms-list"
+                        role="list"
+                        aria-labelledby="terms-heading"
+                      >
+                        {form.watch("academicYear.terms").map((term, index) => (
+                          <Draggable key={term.id} draggableId={term.id} index={index}>
+                            {(provided) => (
+                              <li
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                className="group focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg"
+                              >
+                                <Card className="p-4 hover:shadow-md transition-shadow">
+                                  <div className="flex items-start gap-4">
+                                    <div 
+                                      {...provided.dragHandleProps}
+                                      className="mt-2 cursor-move"
+                                      role="button"
+                                      aria-label="Drag to reorder"
+                                    >
+                                      <GripVertical className="w-5 h-5 text-gray-400" />
+                                    </div>
+                                    <div className="flex-1 space-y-4">
+                                      <FormField
+                                        control={form.control}
+                                        name={`academicYear.terms.${index}.name`}
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Term Name</FormLabel>
+                                            <FormControl>
+                                              <Input {...field} placeholder="e.g., Fall Semester" />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <FormField
+                                          control={form.control}
+                                          name={`academicYear.terms.${index}.startDate`}
+                                          render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                              <FormLabel>Start Date</FormLabel>
+                                              <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) =>
+                                                  date < form.getValues("academicYear.startDate") ||
+                                                  date > form.getValues("academicYear.endDate")
+                                                }
+                                                className="rounded-md border"
+                                              />
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                        <FormField
+                                          control={form.control}
+                                          name={`academicYear.terms.${index}.endDate`}
+                                          render={({ field }) => (
+                                            <FormItem className="flex flex-col">
+                                              <FormLabel>End Date</FormLabel>
+                                              <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) =>
+                                                  date < form.getValues(`academicYear.terms.${index}.startDate`) ||
+                                                  date > form.getValues("academicYear.endDate")
+                                                }
+                                                className="rounded-md border"
+                                              />
+                                              <FormMessage />
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </div>
+                                      {/* Term date validation feedback */}
+                                      {getTermDateValidation(index) && (
+                                        <Alert variant="destructive" className="mt-2">
+                                          <AlertCircle className="h-4 w-4" />
+                                          <AlertDescription>
+                                            {getTermDateValidation(index)}
+                                          </AlertDescription>
+                                        </Alert>
+                                      )}
+                                    </div>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => removeTerm(index)}
+                                      aria-label="Remove term"
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </Card>
+                              </li>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </ul>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
+
+              {/* Summary View */}
+              {form.watch("academicYear.terms").length > 0 && (
+                <Card className="p-4">
+                  <h3 className="font-semibold mb-4">Academic Year Summary</h3>
+                  <div className="space-y-2 text-sm">
+                    <p>
+                      <span className="font-medium">Academic Year:</span>{" "}
+                      {form.watch("academicYear.name")}
+                    </p>
+                    <p>
+                      <span className="font-medium">Duration:</span>{" "}
+                      {form.watch("academicYear.startDate")?.toLocaleDateString()} to{" "}
+                      {form.watch("academicYear.endDate")?.toLocaleDateString()}
+                    </p>
+                    <p>
+                      <span className="font-medium">Number of Terms:</span>{" "}
+                      {form.watch("academicYear.terms").length}
+                    </p>
+                  </div>
+                </Card>
+              )}
+
+              {/* Validation Errors */}
+              {form.formState.errors.academicYear?.terms && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    {form.formState.errors.academicYear.terms.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex justify-end gap-4">
                 <Button
                   type="button"
-                  onClick={addTerm}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  onClick={() => navigate(-1)}
+                  disabled={isLoading}
                 >
-                  <Plus className="w-4 h-4" />
-                  Add Term
+                  Previous
+                </Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "Saving..." : "Next"}
                 </Button>
               </div>
-
-              <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="terms">
-                  {(provided) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                      {form.watch("academicYear.terms").map((term, index) => (
-                        <Draggable key={term.id} draggableId={term.id} index={index}>
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              onKeyDown={(e) => handleKeyDown(e, index)}
-                              tabIndex={0}
-                              role="listitem"
-                              aria-label={`Term ${index + 1}`}
-                              className="group focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg"
-                            >
-                              <Card className="p-4 hover:shadow-md transition-shadow">
-                                <div className="flex items-start gap-4">
-                                  <div 
-                                    {...provided.dragHandleProps}
-                                    className="mt-2 cursor-move"
-                                    role="button"
-                                    aria-label="Drag to reorder"
-                                  >
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                  </div>
-                                  <div className="flex-1 space-y-4">
-                                    <FormField
-                                      control={form.control}
-                                      name={`academicYear.terms.${index}.name`}
-                                      render={({ field }) => (
-                                        <FormItem>
-                                          <FormLabel>Term Name</FormLabel>
-                                          <FormControl>
-                                            <Input {...field} placeholder="e.g., Fall Semester" />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                      <FormField
-                                        control={form.control}
-                                        name={`academicYear.terms.${index}.startDate`}
-                                        render={({ field }) => (
-                                          <FormItem className="flex flex-col">
-                                            <FormLabel>Start Date</FormLabel>
-                                            <Calendar
-                                              mode="single"
-                                              selected={field.value}
-                                              onSelect={field.onChange}
-                                              disabled={(date) =>
-                                                date < form.getValues("academicYear.startDate") ||
-                                                date > form.getValues("academicYear.endDate")
-                                              }
-                                              className="rounded-md border"
-                                            />
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                      <FormField
-                                        control={form.control}
-                                        name={`academicYear.terms.${index}.endDate`}
-                                        render={({ field }) => (
-                                          <FormItem className="flex flex-col">
-                                            <FormLabel>End Date</FormLabel>
-                                            <Calendar
-                                              mode="single"
-                                              selected={field.value}
-                                              onSelect={field.onChange}
-                                              disabled={(date) =>
-                                                date < form.getValues(`academicYear.terms.${index}.startDate`) ||
-                                                date > form.getValues("academicYear.endDate")
-                                              }
-                                              className="rounded-md border"
-                                            />
-                                            <FormMessage />
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </div>
-                                    {/* Term date validation feedback */}
-                                    {getTermDateValidation(index) && (
-                                      <Alert variant="destructive" className="mt-2">
-                                        <AlertCircle className="h-4 w-4" />
-                                        <AlertDescription>
-                                          {getTermDateValidation(index)}
-                                        </AlertDescription>
-                                      </Alert>
-                                    )}
-                                  </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => removeTerm(index)}
-                                    aria-label="Remove term"
-                                  >
-                                    <Trash2 className="w-4 h-4 text-red-500" />
-                                  </Button>
-                                </div>
-                              </Card>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
-
-            {/* Summary View */}
-            {form.watch("academicYear.terms").length > 0 && (
-              <Card className="p-4">
-                <h3 className="font-semibold mb-4">Academic Year Summary</h3>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-medium">Academic Year:</span>{" "}
-                    {form.watch("academicYear.name")}
-                  </p>
-                  <p>
-                    <span className="font-medium">Duration:</span>{" "}
-                    {form.watch("academicYear.startDate")?.toLocaleDateString()} to{" "}
-                    {form.watch("academicYear.endDate")?.toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Number of Terms:</span>{" "}
-                    {form.watch("academicYear.terms").length}
-                  </p>
-                </div>
-              </Card>
-            )}
-
-            {/* Validation Errors */}
-            {form.formState.errors.academicYear?.terms && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {form.formState.errors.academicYear.terms.message}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="flex justify-end gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-                disabled={isLoading}
-              >
-                Previous
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Saving..." : "Next"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );

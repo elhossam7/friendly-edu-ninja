@@ -10,13 +10,9 @@ import RolesSetup from "./pages/RolesSetup";
 import AcademicYearSetup from "./pages/AcademicYearSetup";
 import ClassAndSectionSetup from "./pages/ClassAndSectionSetup";
 import SubjectSetup from "./pages/SubjectSetup";
-<<<<<<< HEAD
 import SetupSuccess from "./pages/SetupSuccess";
 import Dashboard from "./pages/Dashboard";
-=======
 import CompletionPage from "./pages/CompletionPage";
-import StudentEnrollment from "./pages/StudentEnrollment";
->>>>>>> c31eb2ebad5d7c89a9c0ee554ed56167176614e3
 
 const queryClient = new QueryClient();
 
@@ -33,7 +29,6 @@ export default function App() {
             <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
             <Route path="/setup/class" element={<ClassAndSectionSetup />} />
             <Route path="/setup/subject" element={<SubjectSetup />} />
-<<<<<<< HEAD
             <Route path="/setup/success" element={<SetupSuccess />} />
             <Route 
               path="/dashboard" 
@@ -43,11 +38,7 @@ export default function App() {
                 </RequireSetup>
               } 
             />
-=======
             <Route path="/setup/completion" element={<CompletionPage />} />
-            <Route path="/setup/student-enrollment" element={<StudentEnrollment />} />
-            <Route path="/students/enroll" element={<StudentEnrollment />} />
->>>>>>> c31eb2ebad5d7c89a9c0ee554ed56167176614e3
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

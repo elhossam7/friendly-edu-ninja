@@ -150,8 +150,10 @@ const ClassAndSectionSetup = () => {
     <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Class and Section Setup</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight md:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-[#9b87f5] to-[#7E69AB]">
+            Class and Section Setup
+          </h1>
+          <p className="text-muted-foreground text-lg">
             Organize your institution's structure
             <span className="block text-sm text-red-500 mt-1">
               * At least one class with one section is required

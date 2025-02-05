@@ -172,25 +172,25 @@ const SubjectSetup = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      // TODO: Implement actual backend submission logic
-      console.log("Submitting subjects:", data);
-
-      // Store setup completion in local storage
+      setIsLoading(true);
+      
+      // Save data
+      localStorage.setItem('subjectSetupData', JSON.stringify(data));
       localStorage.setItem('setupCompleted', 'true');
-
-      // Show success toast
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       toast({
-        title: "Setup Complete",
-        description: "Your institution setup is now finished.",
-        variant: "default",
+        title: "Success",
+        description: "Subject setup completed successfully",
       });
-
-      // Navigate to completion page
-      navigate("/setup/completion");
+      
+      // Update this line to navigate to setup-success instead of completion
+      navigate("/setup/success");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to complete setup. Please try again.",
+        description: "Failed to save subject setup",
         variant: "destructive",
       });
     } finally {

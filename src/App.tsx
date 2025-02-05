@@ -12,7 +12,6 @@ import ClassAndSectionSetup from "./pages/ClassAndSectionSetup";
 import SubjectSetup from "./pages/SubjectSetup";
 import SetupSuccess from "./pages/SetupSuccess";
 import Dashboard from "./pages/Dashboard";
-import CompletionPage from "./pages/CompletionPage";
 
 const queryClient = new QueryClient();
 
@@ -38,7 +37,6 @@ export default function App() {
                 </RequireSetup>
               } 
             />
-            <Route path="/setup/completion" element={<CompletionPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

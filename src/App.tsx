@@ -12,8 +12,19 @@ import ClassAndSectionSetup from "./pages/ClassAndSectionSetup";
 import SubjectSetup from "./pages/SubjectSetup";
 import SetupSuccess from "./pages/SetupSuccess";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 export default function App() {
   return (
@@ -23,6 +34,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<InstitutionRegistration />} />
             <Route path="/setup/roles" element={<RolesSetup />} />
             <Route path="/setup/academic-year" element={<AcademicYearSetup />} />
@@ -32,9 +44,9 @@ export default function App() {
             <Route 
               path="/dashboard" 
               element={
-                <RequireSetup>
+                <RequireAuth>
                   <Dashboard />
-                </RequireSetup>
+                </RequireAuth>
               } 
             />
             <Route path="*" element={<NotFound />} />

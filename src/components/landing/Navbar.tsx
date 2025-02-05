@@ -8,7 +8,7 @@ export const Navbar = () => {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/register");
+    navigate("/login");
   };
 
   return (

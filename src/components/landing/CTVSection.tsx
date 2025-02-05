@@ -17,7 +17,7 @@ export const CTVSection = () => {
           <Button
             size="lg"
             className="bg-white text-[#9b87f5] hover:bg-white/90"
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/login")}
           >
             Start Free Trial
           </Button>

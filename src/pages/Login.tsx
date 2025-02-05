@@ -57,6 +57,16 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9b87f5]/10 to-[#7E69AB]/10 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          {/* Logo Section */}
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#9b87f5] to-[#7E69AB] bg-clip-text text-transparent inline-flex items-center gap-2">
+            eduManager
+            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+              Beta
+            </span>
+          </h1>
+        </div>
+
         <Card className="border-0 shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold tracking-tight">

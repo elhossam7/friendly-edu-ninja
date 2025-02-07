@@ -1,0 +1,11 @@
+{
+  "name": "friendly-edu-ninja-connector",
+  "type": "postgresql",
+  "config": {
+    "database": "fdcdb",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "user": "postgres",
+    "password": "postgres"
+  }
+}

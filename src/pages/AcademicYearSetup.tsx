@@ -194,6 +194,14 @@ const AcademicYearSetup = () => {
     return Math.round(progress);
   };
 
+  const progressBarRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (progressBarRef.current) {
+      progressBarRef.current.style.setProperty("--progress-width", `${calculateProgress()}%`);
+    }
+  }, [form.watch("academicYear.name"), form.watch("academicYear.startDate"), form.watch("academicYear.endDate"), form.watch("academicYear.terms")]);
+
   const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
     if (e.key === "ArrowUp" && index > 0) {
       e.preventDefault();
@@ -274,18 +282,18 @@ const AcademicYearSetup = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold tracking-tight">Academic Year Setup</h1>
-            <p className="text-muted-foreground">Configure your academic year and terms</p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>Step 3 of 5: Academic Year Configuration</span>
+            <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+                <div 
+                  ref={progressBarRef}
+                  className="progress-bar-fill"
+                />
+            </div>
               <span>{calculateProgress()}% Complete</span>
             </div>
             <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
               <div 
-                className="progress-bar-fill"
-                style={{ width: `${calculateProgress()}%` }}
+                className={`progress-bar-fill ${styles.progressBar}`}
+                style={{"--progress-width": `${calculateProgress()}%`} as React.CSSProperties}
               />
             </div>
           </div>
@@ -344,8 +352,8 @@ const AcademicYearSetup = () => {
                       return (
                         <div
                           key={term.id}
-                          className="term-item"
-                          style={{ left: termPosition.left, width: termPosition.width }}
+                          className={`term-item ${styles.termItem}`}
+                          style={{"--term-left": termPosition.left, "--term-width": termPosition.width} as React.CSSProperties}
                         >
                           <span className="px-2 truncate">{term.name}</span>
                         </div>
@@ -536,8 +544,7 @@ const AcademicYearSetup = () => {
           </Form>
         </div>
       </div>
-    </div>
   );
-};
+}
 
 export default AcademicYearSetup;

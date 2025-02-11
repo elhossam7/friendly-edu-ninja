@@ -13,6 +13,7 @@ import SubjectSetup from "./pages/SubjectSetup";
 import SetupSuccess from "./pages/SetupSuccess";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import StudentEnrollment from '@/pages/student-enrollment';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ export default function App() {
             <Route path="/setup/class" element={<ClassAndSectionSetup />} />
             <Route path="/setup/subject" element={<SubjectSetup />} />
             <Route path="/setup/success" element={<SetupSuccess />} />
+            <Route path="/student-enrollment" element={<StudentEnrollment />} />
             <Route 
               path="/dashboard" 
               element={

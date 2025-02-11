@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ReactNode } from "react";
 import { ProfileButton } from "@/components/ui/profile-button";
+import { useNavigate } from 'react-router-dom';
 
 interface StatsItem {
   title: string;
@@ -46,13 +47,18 @@ interface ActivityItem {
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleQuickAction = (action: string) => {
-    toast({
-      title: action,
-      description: `${action} action triggered successfully!`,
-    });
+    if (action === "Add Student") {
+      navigate('/student-enrollment');
+    } else {
+      toast({
+        title: action,
+        description: `${action} action triggered successfully!`,
+      });
+    }
   };
 
   const stats: StatsItem[] = [
@@ -81,7 +87,7 @@ const Dashboard = () => {
       title: "Add Student",
       description: "Register a new student in the system",
       icon: <Plus className="h-4 w-4" />,
-      onClick: () => handleQuickAction("Add Student"),
+      onClick: () => navigate('/student-enrollment'),  // Ensure this matches the route path
     },
     {
       title: "Create Class",

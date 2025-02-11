@@ -288,8 +288,7 @@ const SubjectSetup = () => {
           </div>
           <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
             <div 
-              className="bg-primary h-full transition-all duration-300 ease-in-out"
-              style={{ width: `${calculateProgress()}%` }}
+              className="bg-primary h-full transition-all duration-300 ease-in-out subject-setup-style"
             />
           </div>
         </div>

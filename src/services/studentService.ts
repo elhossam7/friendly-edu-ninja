@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { app } from '@/lib/firebase';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const db = getFirestore(app);
 
@@ -17,7 +17,7 @@ class StudentService {
   constructor() {}
 
   // Create a new student
-  async addStudent(firstName: string, lastName: string, email: string): Promise<Student> {
+  async addStudent(firstName: string, lastName: string, email: string): Promise<string> {
     const newStudent: Student = {
       id: uuidv4(),
       firstName,
@@ -26,7 +26,7 @@ class StudentService {
     };
 
     this.students.push(newStudent);
-    return newStudent;
+    return newStudent.id;
   }
 
   // Get all students
@@ -70,23 +70,49 @@ export interface StudentData {
   dateOfBirth: string;
   gender: 'male' | 'female' | 'other';
   classId: string;
+  section: string;
+  rollNumber?: string;
+  address: string;
   guardianName: string;
   guardianPhone: string;
   guardianEmail: string;
-  createdAt: Date;
+  guardianRelationship: 'mother' | 'father' | 'guardian';
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  medicalInfo?: string;
+  previousSchool?: string;
+  status?: 'active' | 'inactive' | 'pending';
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export async function addStudent(data: Omit<StudentData, 'createdAt'>) {
+// Modify the existing addStudent function to interact with Firebase
+export async function addStudent(data: StudentData): Promise<string> {
   try {
     const studentData = {
       ...data,
       createdAt: new Date(),
+      updatedAt: new Date(),
+      status: data.status || 'active'
     };
     
     const docRef = await addDoc(collection(db, 'students'), studentData);
     return docRef.id;
   } catch (error) {
     console.error('Error adding student:', error);
+    throw error;
+  }
+}
+
+export async function getStudents() {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'students'));
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error getting students:', error);
     throw error;
   }
 }

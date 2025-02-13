@@ -4,8 +4,12 @@ import path from 'path'
 
 export default defineConfig({
   server: {
-    host: "::",
+    host: true,
     port: 8080,
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    },
   },
   plugins: [react()],
   build: {

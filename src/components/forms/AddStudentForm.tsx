@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import type { StudentData } from "@/services/studentService";
 
 const studentSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -36,12 +37,11 @@ const studentSchema = z.object({
   emergencyContactPhone: z.string().min(10, "Emergency contact phone is required"),
   medicalInfo: z.string().optional(),
   previousSchool: z.string().optional(),
+  status: z.enum(['active', 'inactive', 'pending']).optional(),
 });
 
-type FormData = z.infer<typeof studentSchema>;
-
 interface AddStudentFormProps {
-  onSubmit: (data: FormData) => Promise<void>;
+  onSubmit: (data: StudentData) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -49,13 +49,28 @@ export function AddStudentForm({ onSubmit, isLoading }: AddStudentFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<StudentData>({
     resolver: zodResolver(studentSchema),
+    defaultValues: {
+      status: 'active',
+    }
   });
 
+  const handleFormSubmit = async (data: StudentData) => {
+    try {
+      await onSubmit(data);
+      reset(); // Reset form after successful submission
+    } catch (error) {
+      console.error('Form submission error:', error);
+      throw error; // Let the parent component handle the error
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
@@ -83,16 +98,26 @@ export function AddStudentForm({ onSubmit, isLoading }: AddStudentFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="gender">Gender</Label>
-              <Select onValueChange={(value) => register('gender').onChange({ target: { value } })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
             </div>
           </div>
@@ -122,6 +147,20 @@ export function AddStudentForm({ onSubmit, isLoading }: AddStudentFormProps) {
               <Input id="rollNumber" {...register('rollNumber')} />
               {errors.rollNumber && <p className="text-red-500 text-sm">{errors.rollNumber.message}</p>}
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select onValueChange={(value) => register('status').onChange({ target: { value } })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
           </div>
         </CardContent>
       </Card>
@@ -154,16 +193,26 @@ export function AddStudentForm({ onSubmit, isLoading }: AddStudentFormProps) {
             
             <div className="space-y-2">
               <Label htmlFor="guardianRelationship">Relationship</Label>
-              <Select onValueChange={(value) => register('guardianRelationship').onChange({ target: { value } })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select relationship" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mother">Mother</SelectItem>
-                  <SelectItem value="father">Father</SelectItem>
-                  <SelectItem value="guardian">Guardian</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="guardianRelationship"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select relationship" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mother">Mother</SelectItem>
+                      <SelectItem value="father">Father</SelectItem>
+                      <SelectItem value="guardian">Guardian</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.guardianRelationship && <p className="text-red-500 text-sm">{errors.guardianRelationship.message}</p>}
             </div>
           </div>
@@ -187,8 +236,12 @@ export function AddStudentForm({ onSubmit, isLoading }: AddStudentFormProps) {
         </CardContent>
       </Card>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? (
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={isLoading || isSubmitting}
+      >
+        {(isLoading || isSubmitting) ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Adding Student...

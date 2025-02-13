@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { 
   Card, 
@@ -12,26 +13,55 @@ import { useToast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import type { StudentData } from "@/services/studentService";
 
 const StudentEnrollment = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const [enrollmentProgress, setEnrollmentProgress] = React.useState(0);
 
-  const handleAddStudent = async (data: any) => {
+  React.useEffect(() => {
+    let timer: any;
+    if (isLoading) {
+      setEnrollmentProgress(0);
+      timer = setInterval(() => {
+        setEnrollmentProgress((prev) => (prev < 90 ? prev + 10 : prev));
+      }, 500);
+    }
+    return () => clearInterval(timer);
+  }, [isLoading, setEnrollmentProgress]);
+
+  const handleAddStudent = async (formData: StudentData) => {
     try {
       setIsLoading(true);
-      await addStudent(data);
-      setEnrollmentProgress(prev => Math.min(prev + 20, 100));
+      setEnrollmentProgress(30); // Show initial progress
+      
+      // Process the form data
+      const studentData: StudentData = {
+        ...formData,
+        status: formData.status || 'active'
+      };
+
+      const studentId = await addStudent(studentData);
+      setEnrollmentProgress(100);
       
       toast({
         title: "Success",
-        description: "Student enrolled successfully",
+        description: `Student ${formData.firstName} ${formData.lastName} enrolled successfully`,
+        variant: "default",
       });
+
+      // Delay navigation to show success state
+      setTimeout(() => {
+        navigate('/students-list');
+      }, 1500);
+
     } catch (error) {
+      console.error('Enrollment error:', error);
       toast({
         title: "Error",
-        description: "Failed to enroll student",
+        description: "Failed to enroll student. Please try again.",
         variant: "destructive",
       });
     } finally {

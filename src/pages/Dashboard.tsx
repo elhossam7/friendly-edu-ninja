@@ -290,18 +290,36 @@ const Dashboard = () => {
                 <TabsTrigger value="tasks">Pending Tasks</TabsTrigger>
               </TabsList>
               <TabsContent value="recent" className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <ActivityItem key={activity.key} {...activity} />
+                {recentActivities.map((activity) => (
+                  <ActivityItem
+                    key={activity.key}
+                    title={activity.title}
+                    time={activity.time}
+                    description={activity.description}
+                    icon={activity.icon}
+                  />
                 ))}
               </TabsContent>
               <TabsContent value="upcoming" className="space-y-4">
-                {upcomingEvents.map((event, index) => (
-                  <ActivityItem key={event.key} {...event} />
+                {upcomingEvents.map((event) => (
+                  <ActivityItem
+                    key={event.key}
+                    title={event.title}
+                    time={event.time}
+                    description={event.description}
+                    icon={event.icon}
+                  />
                 ))}
               </TabsContent>
               <TabsContent value="tasks" className="space-y-4">
-                {pendingTasks.map((task, index) => (
-                  <ActivityItem key={task.key} {...task} />
+                {pendingTasks.map((task) => (
+                  <ActivityItem
+                    key={task.key}
+                    title={task.title}
+                    time={task.time}
+                    description={task.description}
+                    icon={task.icon}
+                  />
                 ))}
               </TabsContent>
             </Tabs>
